@@ -1,5 +1,5 @@
 TODO:
-compression?
-implement MongoPasteRepo
-frontend
-rate limit
+- compression?
+- implement MongoPasteRepo
+- frontend
+- rate limit
