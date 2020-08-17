@@ -10,8 +10,8 @@ object SecurityUtil {
     fun generateId(): String =
         DigestUtils.sha1Hex(UUID.randomUUID().toBytes())
 
-    fun generatePassword(length: Int = 32): String =
-        StringUtil.randomString(length)
+    fun generatePassword(): String =
+        StringUtil.randomString(32)
 
     fun generateSalt(): String =
         DigestUtils.sha256Hex(UUID.randomUUID().toBytes())
