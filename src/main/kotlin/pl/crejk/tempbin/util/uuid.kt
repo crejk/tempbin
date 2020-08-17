@@ -5,11 +5,6 @@ import java.util.*
 
 private const val UUID_BYTE_SIZE = 16
 
-fun ByteArray.toUUID(): UUID =
-    ByteBuffer.wrap(this).let {
-        UUID(it.long, it.long)
-    }
-
 fun UUID.toBytes(): ByteArray =
     ByteBuffer.wrap(ByteArray(UUID_BYTE_SIZE)).let {
         it.putLong(this.mostSignificantBits)
