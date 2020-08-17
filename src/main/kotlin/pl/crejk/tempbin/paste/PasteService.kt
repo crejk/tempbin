@@ -2,10 +2,8 @@ package pl.crejk.tempbin.paste
 
 import com.github.benmanes.caffeine.cache.CacheLoader
 import com.github.benmanes.caffeine.cache.Caffeine
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.future.await
-import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.withContext
 import pl.crejk.tempbin.paste.repo.PasteRepo
 import pl.crejk.tempbin.util.SecurityUtil
 import java.time.LocalDateTime
@@ -38,7 +36,14 @@ class PasteService(
         val creationTime = LocalDateTime.now()
         val expirationTime = creationTime.plusNanos(pasteDTO.expiration.nanos)
 
-        val paste = Paste(pasteId, EncryptedContent(encryptedContent), salt, creationTime, expirationTime, pasteDTO.deleteAfterReading)
+        val paste = Paste(
+            pasteId,
+            EncryptedContent(encryptedContent),
+            salt,
+            creationTime,
+            expirationTime,
+            pasteDTO.deleteAfterReading
+        )
 
         return withContext(this.compute) {
             repo.savePaste(paste)?.let {
@@ -50,12 +55,12 @@ class PasteService(
     suspend fun getPaste(id: PasteId): Paste? =
         this.cache.get(id).await()
 
-    suspend fun removePaste(id: PasteId) {
-        withContext(this.compute) {
+    suspend fun removePaste(id: PasteId) = coroutineScope {
+        async(compute) {
             repo.removePaste(id)
+        }.invokeOnCompletion {
+            cache.synchronous().invalidate(id)
         }
-
-        this.cache.synchronous().invalidate(id)
     }
 }
 
