@@ -49,7 +49,7 @@ class PasteRestTest : DescribeSpec({
 
         it("should add paste") {
             val response = engine.handleRequest(HttpMethod.Post, "/paste") {
-                this.setBody(mapper.writeValueAsString(Test("message")))
+                this.setBody(mapper.writeValueAsString(PasteDTO("message")))
                 this.addHeader("Content-Type", "application/json")
             }.response.content!!
 

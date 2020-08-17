@@ -8,10 +8,6 @@ data class PasteDTO constructor(
     val deleteAfterReading: Boolean = false
 )
 
-data class Test(
-    val content: String
-)
-
 enum class Expiration(
     private val duration: Duration
 ) {
