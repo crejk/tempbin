@@ -7,14 +7,17 @@ import java.util.concurrent.ConcurrentHashMap
 
 class InMemoryPasteRepo : PasteRepo {
 
-    private val pastes = ConcurrentHashMap<String, Paste>()
+    private val _pastes = ConcurrentHashMap<String, Paste>()
+    internal val pastes get(): Collection<Paste> = this._pastes.values
 
     override fun findPaste(id: String): Paste? =
-        this.pastes[id]
+        this._pastes[id]
 
-    override fun savePaste(paste: Paste): Paste? =
-        this.pastes.put(paste.id, paste)
+    override fun savePaste(paste: Paste): Paste? {
+        this._pastes[paste.id] = paste
+        return paste
+    }
 
     override fun removePaste(id: PasteId): Paste? =
-        this.pastes.remove(id)
+        this._pastes.remove(id)
 }
