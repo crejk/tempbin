@@ -22,19 +22,13 @@ class PasteService(
         .expireAfterAccess(5, TimeUnit.MINUTES)
         .buildAsync(PasteLoader(this.repo))
 
-    suspend fun createPaste(pasteDTO: PasteDTO): PasteResult {
-        val content = pasteDTO.content
-
-        if (content.isEmpty()) {
-            return PasteResult.EMPTY
-        }
-
+    suspend fun createPaste(newPaste: PasteDTO): PasteResult {
         val pasteId = SecurityUtil.generateId()
         val password = SecurityUtil.generatePassword()
         val salt = SecurityUtil.generateSalt()
-        val encryptedContent = SecurityUtil.prepareTextEncryptor(password, salt).encrypt(content)
+        val encryptedContent = SecurityUtil.prepareTextEncryptor(password, salt).encrypt(newPaste.content)
         val creationTime = LocalDateTime.now()
-        val expirationTime = creationTime.plusNanos(pasteDTO.expiration.nanos)
+        val expirationTime = creationTime.plusNanos(newPaste.expiration.nanos)
 
         val paste = Paste(
             pasteId,
@@ -42,7 +36,7 @@ class PasteService(
             salt,
             creationTime,
             expirationTime,
-            pasteDTO.deleteAfterReading
+            newPaste.deleteAfterReading
         )
 
         return withContext(this.compute) {
