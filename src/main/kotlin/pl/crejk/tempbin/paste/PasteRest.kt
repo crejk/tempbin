@@ -69,7 +69,7 @@ class PasteRest(
                 return@post call.respond(HttpStatusCode.NoContent, "Missing content")
             }
 
-            if (newPaste.content.length > maxContentLengthInMb) {
+            if ((newPaste.content.length / 2) > maxContentLengthInMb) {
                 return@post call.respond(HttpStatusCode.PayloadTooLarge, "Content too large")
             }
 
