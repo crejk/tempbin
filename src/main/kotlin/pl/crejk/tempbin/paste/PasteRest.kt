@@ -23,8 +23,16 @@ data class GetPasteRequest(
 @ObsoleteCoroutinesApi
 @KtorExperimentalLocationsAPI
 class PasteRest(
-    private val service: PasteService
+    private val service: PasteService,
+    maxContentLengthInKb: Int = 1 * 1000
 ) {
+
+    private val maxContentLengthInMb = (maxContentLengthInKb / 2) * KB_LENGTH
+
+    companion object {
+
+        private const val KB_LENGTH = 1024
+    }
 
     fun api(): Routing.() -> Unit = {
         get<GetPasteRequest> {
@@ -51,14 +59,18 @@ class PasteRest(
                 service.removePaste(pasteId)
             }
 
-            call.respond(HttpStatusCode.NotFound, "Paste doesn't exist.")
+            call.respond(HttpStatusCode.NotFound, "Paste doesn't exist")
         }
 
         post("paste") {
             val newPaste = call.receiveOrNull<PasteDTO>()
 
             if (newPaste == null || newPaste.content.isEmpty()) {
-                return@post call.respond(HttpStatusCode.NoContent,"Missing content")
+                return@post call.respond(HttpStatusCode.NoContent, "Missing content")
+            }
+
+            if (newPaste.content.length > maxContentLengthInMb) {
+                return@post call.respond(HttpStatusCode.PayloadTooLarge, "Content too large")
             }
 
             val result = service.createPaste(newPaste)
