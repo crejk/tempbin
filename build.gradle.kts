@@ -11,7 +11,7 @@ repositories {
     mavenCentral()
 }
 
-val ktorVersion = "1.2.4"
+val ktorVersion = "1.3.1"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -27,6 +27,7 @@ dependencies {
 
     testImplementation("io.kotest:kotest-runner-junit5-jvm:4.1.3")
     testImplementation("io.kotest:kotest-runner-console-jvm:4.1.3")
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 }
 
 val compileKotlin: KotlinCompile by tasks
