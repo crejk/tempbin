@@ -2,26 +2,30 @@ package pl.crejk.tempbin.paste
 
 import com.github.benmanes.caffeine.cache.CacheLoader
 import com.github.benmanes.caffeine.cache.Caffeine
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.future.await
+import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import pl.crejk.tempbin.paste.repo.PasteRepo
 import pl.crejk.tempbin.util.SecurityUtil
 import java.time.LocalDateTime
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
+@ObsoleteCoroutinesApi
 class PasteService(
     private val repo: PasteRepo
 ) {
 
-    private val executor = Executors.newFixedThreadPool(4)
+    private val compute = newFixedThreadPoolContext(4, "service-thread-pool")
 
     private val cache = Caffeine.newBuilder()
-        .executor(this.executor)
+        .executor(this.compute.executor)
         .maximumSize(10000)
         .expireAfterAccess(5, TimeUnit.MINUTES)
         .buildAsync(PasteLoader(this.repo))
 
-    fun createPaste(pasteDTO: PasteDTO): PasteResult {
+    suspend fun createPaste(pasteDTO: PasteDTO): PasteResult {
         val content = pasteDTO.content
 
         if (content.isEmpty()) {
@@ -35,40 +39,30 @@ class PasteService(
         val creationTime = LocalDateTime.now()
         val expirationTime = creationTime.plusNanos(pasteDTO.expiration.nanos)
 
-        val paste = Paste(pasteId, EncryptedContent(encryptedContent), salt, creationTime, expirationTime)
+        val paste = Paste(pasteId, EncryptedContent(encryptedContent), salt, creationTime, expirationTime, pasteDTO.deleteAfterReading)
 
-        val promise = CompletableFuture<Paste?>()
-
-        this.executor.execute {
-            promise.complete(this.repo.savePaste(paste))
+        return withContext(this.compute) {
+            repo.savePaste(paste)?.let {
+                PasteResult(it.id, password)
+            } ?: PasteResult.EMPTY
         }
-
-        this.cache.put(paste.id, promise)
-
-        return PasteResult(pasteId, password)
     }
 
-    fun getPaste(id: PasteId): CompletableFuture<Paste?> =
-        this.cache.get(id)
+    suspend fun getPaste(id: PasteId): Paste? =
+        this.cache.get(id).await()
 
-    fun removePaste(id: PasteId) {
-        val promise = CompletableFuture<Paste?>()
-
-        this.executor.execute {
-            val paste = this.repo.removePaste(id)
-
-            promise.complete(paste)
+    suspend fun removePaste(id: PasteId) {
+        withContext(this.compute) {
+            repo.removePaste(id)
         }
 
-        promise.thenApply {
-            this.cache.synchronous().invalidate(id)
-        }
+        this.cache.synchronous().invalidate(id)
     }
 }
 
 class PasteLoader(
     private val repo: PasteRepo
-): CacheLoader<String, Paste> {
+): CacheLoader<PasteId, Paste> {
 
     override fun load(key: String): Paste? =
         this.repo.findPaste(key)

@@ -2,10 +2,14 @@ package pl.crejk.tempbin.paste
 
 import java.time.Duration
 
-data class PasteDTO(
+data class PasteDTO constructor(
     val content: String,
     val expiration: Expiration = Expiration.HOUR,
     val deleteAfterReading: Boolean = false
+)
+
+data class Test(
+    val content: String
 )
 
 enum class Expiration(

@@ -6,12 +6,12 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
 import io.ktor.locations.get
 import io.ktor.request.receive
+import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.routing.Routing
-import io.ktor.routing.get
 import io.ktor.routing.post
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import pl.crejk.tempbin.util.SecurityUtil
-import java.util.concurrent.TimeUnit
 
 @KtorExperimentalLocationsAPI
 @Location("paste/get/{id}/{password}")
@@ -20,15 +20,16 @@ data class GetPasteRequest(
     val password: String
 )
 
+@ObsoleteCoroutinesApi
+@KtorExperimentalLocationsAPI
 class PasteRest(
     private val service: PasteService
 ) {
 
-    @KtorExperimentalLocationsAPI
     fun api(): Routing.() -> Unit = {
         get<GetPasteRequest> {
             val pasteId = it.id
-            val paste = service.getPaste(pasteId).join()
+            val paste = service.getPaste(pasteId)
 
             if (paste != null) {
                 if (!paste.isExpired()) {
