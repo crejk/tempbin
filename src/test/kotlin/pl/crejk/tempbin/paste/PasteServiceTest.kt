@@ -2,11 +2,8 @@ package pl.crejk.tempbin.paste
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import pl.crejk.tempbin.paste.repo.mem.InMemoryPasteRepo
-import pl.crejk.tempbin.util.SecurityUtil
-import java.util.concurrent.TimeUnit
 
 @ObsoleteCoroutinesApi
 class PasteServiceTest : BehaviorSpec({

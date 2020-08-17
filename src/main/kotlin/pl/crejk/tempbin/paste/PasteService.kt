@@ -5,7 +5,6 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import pl.crejk.tempbin.paste.repo.PasteRepo
 import pl.crejk.tempbin.util.SecurityUtil
