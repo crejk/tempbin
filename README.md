@@ -3,5 +3,7 @@ Safe "pastebin" service.
 
 TODO:
 - implement MongoPasteRepo
-- frontend
 - rate limit
+
+### greetings to
+[szymex](https://github.com/szymex73) for frontend.
