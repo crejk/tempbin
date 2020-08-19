@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>tempbin</title>
 
     <style media="screen">
@@ -152,7 +151,6 @@
             <option value="3">1 week</option>
             <option value="4">2 weeks</option>
             <option value="5">1 month</option>
-            <option value="6">1 year</option>
         </select>
         <label for="deleteAfterReading">Delete After reading</label>
         <input type="checkbox" id="deleteAfterReading" name="deleteAfterReading">
@@ -164,25 +162,28 @@
 
 <script>
     async function submit() {
-        let textArea = document.getElementById('content')
-        let duration = document.getElementById('duration')
-        let deleteAfterReading = document.getElementById('deleteAfterReading')
+        const textArea = document.getElementById('content')
+        const duration = document.getElementById('duration')
+        const deleteAfterReading = document.getElementById('deleteAfterReading')
 
-        let content = textArea.value
+        const content = textArea.value
 
         if (content.length === 0) {
             return
         }
 
-        let requestContent = {
+        const requestContent = {
             expiration: parseInt(duration.value),
             content: content,
             deleteAfterReading: deleteAfterReading.checked
         }
 
-        console.log(requestContent)
+        const response = await putData('paste/', requestContent)
+        const json = JSON.parse(response);
+        const id = json.id
+        const password = json.password
 
-        await putData('http://localhost:8080/paste/', requestContent)
+        window.location.href = "paste/" + id + "/" + password
     }
 
     async function putData(url, data) {
@@ -194,7 +195,7 @@
             }
         })
 
-        console.log(await response.text())
+        return await response.text()
     }
 </script>
 
