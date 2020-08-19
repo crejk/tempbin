@@ -14,6 +14,5 @@ class StringUtilTest : FunSpec({
     companion object {
 
         private const val STRING_LENGTH = 11
-        private const val HEX_LENGTH = 11
     }
 }
