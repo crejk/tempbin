@@ -7,9 +7,6 @@ import java.util.*
 
 object SecurityUtil {
 
-    fun generateId(): String =
-        DigestUtils.sha1Hex(UUID.randomUUID().toBytes())
-
     fun generatePassword(): String =
         StringUtil.randomString(32)
 

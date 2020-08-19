@@ -1,20 +1,23 @@
 package pl.crejk.tempbin.paste.repo.mongo
 
+import org.litote.kmongo.coroutine.CoroutineClient
 import pl.crejk.tempbin.paste.Paste
 import pl.crejk.tempbin.paste.PasteId
 import pl.crejk.tempbin.paste.repo.PasteRepo
 
-class MongoPasteRepo : PasteRepo {
+class MongoPasteRepo(
+    client: CoroutineClient
+): PasteRepo {
 
-    override fun findPaste(id: String): Paste? {
-        TODO("Not yet implemented")
-    }
+    private val database = client.getDatabase("tempbin")
+    private val pastes = database.getCollection<Paste>("pastes")
 
-    override fun savePaste(paste: Paste): Paste? {
-        TODO("Not yet implemented")
-    }
+    override suspend fun findPaste(id: PasteId): Paste? =
+        this.pastes.findOneById(id.toString())
 
-    override fun removePaste(id: PasteId): Paste? {
-        TODO("Not yet implemented")
-    }
+    override suspend fun savePaste(paste: Paste): Boolean =
+        this.pastes.insertOne(paste).insertedId != null
+
+    override suspend fun removePaste(id: PasteId): Boolean =
+        this.pastes.deleteOneById(id.toString()).deletedCount == 1L
 }

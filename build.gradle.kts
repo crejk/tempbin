@@ -25,6 +25,7 @@ dependencies {
     implementation("io.ktor:ktor-thymeleaf:$ktorVersion")
 
     implementation("commons-codec:commons-codec:1.14")
+    implementation("org.litote.kmongo:kmongo-coroutine:4.1.1")
 
     testImplementation("io.kotest:kotest-runner-junit5-jvm:4.1.3")
     testImplementation("io.kotest:kotest-runner-console-jvm:4.1.3")
@@ -35,4 +36,5 @@ val compileKotlin: KotlinCompile by tasks
 
 compileKotlin.kotlinOptions {
     freeCompilerArgs = listOf("-Xinline-classes")
+    jvmTarget = "1.8"
 }

@@ -6,21 +6,17 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.ktor.application.install
-import io.ktor.features.ContentNegotiation
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.jackson.jackson
-import io.ktor.locations.KtorExperimentalLocationsAPI
-import io.ktor.locations.Locations
-import io.ktor.routing.routing
-import io.ktor.server.testing.TestApplicationEngine
-import io.ktor.server.testing.handleRequest
-import io.ktor.server.testing.setBody
+import io.ktor.application.*
+import io.ktor.features.*
+import io.ktor.http.*
+import io.ktor.jackson.*
+import io.ktor.locations.*
+import io.ktor.routing.*
+import io.ktor.server.testing.*
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import pl.crejk.tempbin.paste.repo.mem.InMemoryPasteRepo
 import pl.crejk.tempbin.util.SecurityUtil
-import java.lang.StringBuilder
+import java.util.*
 
 @KtorExperimentalLocationsAPI
 @ObsoleteCoroutinesApi
@@ -44,13 +40,13 @@ class PasteRestTest : DescribeSpec({
         engine.application.routing(PasteRest(service, maxContentLengthInKb).api())
 
         it("paste status code should be 'NotFound'") {
-            val response = engine.handleRequest(HttpMethod.Get, "/paste/get/testid/testpassword").response
+            val response = engine.handleRequest(HttpMethod.Get, "/paste/testid/testpassword").response
 
             response.status() shouldBe HttpStatusCode.NotFound
         }
 
         it("should add paste") {
-            val response = engine.handleRequest(HttpMethod.Post, "/paste") {
+            val response = engine.handleRequest(HttpMethod.Post, "paste") {
                 this.setBody(mapper.writeValueAsString(PasteDTO("message")))
                 this.addHeader("Content-Type", "application/json")
             }.response
@@ -58,18 +54,18 @@ class PasteRestTest : DescribeSpec({
             val result = mapper.readValue<PasteResult>(response.content!!)
 
             result shouldNotBe PasteResult.EMPTY
-            result.id shouldNotBe SecurityUtil.generateId()
+            result.id shouldNotBe UUID.randomUUID()
             result.password shouldNotBe SecurityUtil.generatePassword()
         }
 
         it("added paste should be returned") {
             val addedPaste = repo.pastes.single()
-            val response = engine.handleRequest(HttpMethod.Get, "/paste/get/${addedPaste.id}/invalidpassword").response
+            val response = engine.handleRequest(HttpMethod.Get, "/paste/${addedPaste.id}/invalidpassword").response
 
             response.status() shouldBe HttpStatusCode.Unauthorized
         }
 
-        it("too large content") {
+        it("too large content status should be returned") {
             val message = generateString(4)
             val response = engine.handleRequest(HttpMethod.Post, "/paste") {
                 this.setBody(mapper.writeValueAsString(PasteDTO(message)))

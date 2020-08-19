@@ -5,9 +5,9 @@ import pl.crejk.tempbin.paste.PasteId
 
 interface PasteRepo {
 
-    fun findPaste(id: PasteId): Paste?
+    suspend fun findPaste(id: PasteId): Paste?
 
-    fun savePaste(paste: Paste): Paste?
+    suspend fun savePaste(paste: Paste): Boolean
 
-    fun removePaste(id: PasteId): Paste?
+    suspend fun removePaste(id: PasteId): Boolean
 }

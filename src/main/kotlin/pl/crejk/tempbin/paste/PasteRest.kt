@@ -1,20 +1,20 @@
 package pl.crejk.tempbin.paste
 
-import io.ktor.application.call
-import io.ktor.http.HttpStatusCode
+import io.ktor.application.*
+import io.ktor.http.*
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
 import io.ktor.locations.get
-import io.ktor.request.receive
-import io.ktor.request.receiveOrNull
-import io.ktor.response.respond
+import io.ktor.request.*
+import io.ktor.response.*
 import io.ktor.routing.Routing
 import io.ktor.routing.post
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import pl.crejk.tempbin.util.SecurityUtil
+import java.util.*
 
 @KtorExperimentalLocationsAPI
-@Location("paste/get/{id}/{password}")
+@Location("/paste/{id}/{password}")
 data class GetPasteRequest(
     val id: String,
     val password: String
@@ -36,7 +36,12 @@ class PasteRest(
 
     fun api(): Routing.() -> Unit = {
         get<GetPasteRequest> {
-            val pasteId = it.id
+            val pasteId = try {
+                UUID.fromString(it.id)
+            } catch (e: Exception) {
+                return@get call.respond(HttpStatusCode.BadRequest, "Invalid id")
+            }
+
             val paste = service.getPaste(pasteId)
 
             if (paste != null) {
@@ -54,6 +59,7 @@ class PasteRest(
                     }
 
                     return@get call.respond(content)
+                    //return@get call.respond(ThymeleafContent("paste", mapOf("content" to content)))
                 }
 
                 service.removePaste(pasteId)
