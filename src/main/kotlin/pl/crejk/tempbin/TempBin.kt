@@ -1,6 +1,6 @@
 package pl.crejk.tempbin
 
-import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.jackson.*
@@ -10,6 +10,7 @@ import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.thymeleaf.*
+import io.vavr.jackson.datatype.VavrModule
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 import pl.crejk.tempbin.paste.PasteRest
@@ -24,7 +25,7 @@ fun main() {
     val server = embeddedServer(Netty, port = 8080) {
         install(ContentNegotiation) {
             jackson {
-                this.registerModule(KotlinModule())
+                this.registerKotlinModule()
             }
         }
 

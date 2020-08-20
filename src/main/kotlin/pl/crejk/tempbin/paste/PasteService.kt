@@ -2,6 +2,7 @@ package pl.crejk.tempbin.paste
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.coroutines.*
+import pl.crejk.tempbin.fp.*
 import pl.crejk.tempbin.paste.repo.PasteRepo
 import pl.crejk.tempbin.util.SecurityUtil
 import pl.crejk.tempbin.util.SuspendingCache
@@ -51,8 +52,19 @@ class PasteService(
         }
     }
 
-    suspend fun getPaste(id: PasteId): Paste? =
+    suspend fun getPaste(id: PasteId): Either<PasteError, Paste> =
         this.cache.get(id)
+            .toEither(PasteError.NOT_FOUND)
+            .filterOrElse({ !it.isExpired() }, { PasteError.EXPIRED })
+
+    suspend fun getPasteContent(id: PasteId, password: String): Either<PasteError, String> =
+        this.getPaste(id)
+            .flatMap { this.decrypt(password, it.salt, it.content)
+            .toEither(PasteError.WRONG_PASSWORD) }
+
+    private fun decrypt(password: String, salt: String, encryptedContent: EncryptedContent) = Try {
+        SecurityUtil.prepareTextEncryptor(password, salt).decrypt(encryptedContent.value)
+    }
 
     suspend fun removePaste(id: PasteId) = coroutineScope {
         async(compute) {

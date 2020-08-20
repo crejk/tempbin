@@ -18,13 +18,13 @@ class PasteServiceTest : BehaviorSpec({
             Then("paste should be in repo") {
                 val paste = service.getPaste(id)
 
-                paste?.id shouldBe id
+                paste.right() shouldBe id
             }
 
             Then("paste should be removed from repo") {
                 service.removePaste(id)
 
-                service.getPaste(id) shouldBe null
+                service.getPaste(id).left() shouldBe PasteError.NOT_FOUND
             }
         }
     }

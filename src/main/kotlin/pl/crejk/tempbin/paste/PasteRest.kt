@@ -2,20 +2,20 @@ package pl.crejk.tempbin.paste
 
 import io.ktor.application.*
 import io.ktor.http.*
-import io.ktor.locations.KtorExperimentalLocationsAPI
-import io.ktor.locations.Location
-import io.ktor.locations.get
+import io.ktor.locations.*
 import io.ktor.request.*
 import io.ktor.response.*
-import io.ktor.routing.Routing
+import io.ktor.routing.*
 import io.ktor.routing.post
 import kotlinx.coroutines.ObsoleteCoroutinesApi
-import pl.crejk.tempbin.util.SecurityUtil
+import pl.crejk.tempbin.api.Response
+import pl.crejk.tempbin.api.respond
+import pl.crejk.tempbin.fp.leftPeekIf
 import java.util.*
 
 @KtorExperimentalLocationsAPI
 @Location("/paste/{id}/{password}")
-data class GetPasteRequest(
+data class GetPasteRawRequest(
     val id: String,
     val password: String
 )
@@ -24,10 +24,10 @@ data class GetPasteRequest(
 @KtorExperimentalLocationsAPI
 class PasteRest(
     private val service: PasteService,
-    maxContentLengthInKb: Int = 1 * 1000
+    maxContentLengthInKb: Int = 1000
 ) {
 
-    private val maxContentLengthInMb = (maxContentLengthInKb / 2) * KB_LENGTH
+    private val maxContentLengthInMb = maxContentLengthInKb * KB_LENGTH
 
     companion object {
 
@@ -35,37 +35,19 @@ class PasteRest(
     }
 
     fun api(): Routing.() -> Unit = {
-        get<GetPasteRequest> {
-            val pasteId = try {
-                UUID.fromString(it.id)
-            } catch (e: Exception) {
-                return@get call.respond(HttpStatusCode.BadRequest, "Invalid id")
-            }
+        get<GetPasteRawRequest> {
+            val id = UUID.fromString(it.id)
 
-            val paste = service.getPaste(pasteId)
+            val response = service.getPasteContent(id, it.password)
+                .leftPeekIf(
+                    { error -> error == PasteError.EXPIRED },
+                    { service.removePaste(id) })
+                .fold(
+                    { error -> error.response },
+                    { content -> Response(content) }
+                )
 
-            if (paste != null) {
-                if (!paste.isExpired()) {
-                    val encryptedContent = paste.content.value
-
-                    val content = try {
-                        SecurityUtil.prepareTextEncryptor(it.password, paste.salt).decrypt(encryptedContent)
-                    } catch (e: Exception) {
-                        return@get call.respond(HttpStatusCode.Unauthorized, "Invalid password")
-                    }
-
-                    if (paste.deleteAfterReading) {
-                        service.removePaste(pasteId)
-                    }
-
-                    return@get call.respond(content)
-                    //return@get call.respond(ThymeleafContent("paste", mapOf("content" to content)))
-                }
-
-                service.removePaste(pasteId)
-            }
-
-            call.respond(HttpStatusCode.NotFound, "Paste doesn't exist")
+            call.respond(response)
         }
 
         post("paste") {
