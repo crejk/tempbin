@@ -10,7 +10,6 @@ import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.thymeleaf.*
-import io.vavr.jackson.datatype.VavrModule
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 import pl.crejk.tempbin.paste.PasteRest
