@@ -26,7 +26,7 @@ class PasteRestTest : DescribeSpec({
     describe("rest server") {
         val repo = InMemoryPasteRepo()
         val maxContentLength = (1 * 1024) / 2
-        val service = PasteService(repo, maxContentLength)
+        val service = PasteService(repo)
         val engine = TestApplicationEngine()
 
         engine.start()

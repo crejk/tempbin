@@ -20,7 +20,6 @@ class PasteService(
     private val cache = SuspendingCache<PasteId, Paste>(
         Caffeine.newBuilder()
             .executor(this.compute.executor)
-            .maximumSize(10000)
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .buildAsync<PasteId, Paste>()
     ) {
@@ -45,22 +44,24 @@ class PasteService(
         )
 
         return withContext(this.compute) {
-            if (repo.savePaste(paste))
+            if (repo.savePaste(paste)) {
+                cache.put(paste.id, paste)
                 PasteResult(paste.id.toString(), password)
-            else
+            } else {
                 PasteResult.EMPTY
+            }
         }
     }
 
     suspend fun getPaste(id: PasteId): Either<PasteError, Paste> =
         this.cache.get(id)
-            .toEither(PasteError.NOT_FOUND)
+            .either(PasteError.NOT_FOUND)
             .filterOrElse({ !it.isExpired() }, { PasteError.EXPIRED })
 
     suspend fun getPasteContent(id: PasteId, password: String): Either<PasteError, String> =
         this.getPaste(id)
             .flatMap { this.decrypt(password, it.salt, it.content)
-            .toEither(PasteError.WRONG_PASSWORD) }
+            .either(PasteError.WRONG_PASSWORD) }
 
     private fun decrypt(password: String, salt: String, encryptedContent: EncryptedContent) = Try {
         SecurityUtil.prepareTextEncryptor(password, salt).decrypt(encryptedContent.value)

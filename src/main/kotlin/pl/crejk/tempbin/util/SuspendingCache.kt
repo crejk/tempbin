@@ -17,6 +17,9 @@ class SuspendingCache<K : Any, V: Any>(
         this.getAsync(key).await()
     }
 
+    fun put(key: K, value: V) =
+        this.asyncCache.put(key, CompletableFuture.completedFuture(value))
+
     fun invalidate(key: K) =
         this.asyncCache.synchronous().invalidate(key)
 

@@ -15,12 +15,11 @@ sealed class Either<out L, out R> {
         is Right -> this.right
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <U> map(mapper: (R) -> U): Either<L, U> = flatMap {
+    inline fun <U> map(mapper: (R) -> U): Either<L, U> = flatMap {
         Right<L, U>(mapper(it))
     }
 
-    fun <U> fold(leftMapper: (L) -> U, rightMapper: (R) -> U): U = when(this) {
+    inline fun <U> fold(leftMapper: (L) -> U, rightMapper: (R) -> U): U = when(this) {
         is Left -> leftMapper(this.left)
         is Right -> rightMapper(this.right)
     }
@@ -38,7 +37,7 @@ inline fun <L, R, U> Either<L, R>.flatMap(mapper: (R) -> Either<L, U>): Either<L
     is Either.Right -> mapper(this.right)
 }
 
-fun <T, L> T?.toEither(left: L): Either<L, T> =
+fun <T, L> T?.either(left: L): Either<L, T> =
     if(this == null) Either.Left(left) else Either.Right(this)
 
 inline fun <L, R> Either<L, R>.leftPeek(f: (L) -> Unit): Either<L, R> {

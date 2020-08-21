@@ -14,7 +14,15 @@ sealed class Try<out T> {
         }
     }
 
-    fun <L> toEither(left: L): Either<L, T> = when(this) {
+    fun filter(predicate: (T) -> Boolean): Try<T> = when (this) {
+        is Success -> if (predicate(this.value))
+            this
+        else
+            Failure(NoSuchElementException("Predicate does not hold for ${this.value}"))
+        is Failure -> this
+    }
+
+    fun <L> either(left: L): Either<L, T> = when (this) {
         is Success -> right(this.value)
         is Failure -> left(left)
     }

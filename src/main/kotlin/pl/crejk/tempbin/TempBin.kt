@@ -19,6 +19,10 @@ import pl.crejk.tempbin.paste.repo.mem.InMemoryPasteRepo
 @ObsoleteCoroutinesApi
 @KtorExperimentalLocationsAPI
 fun main() {
+    val maxContentSizeInMb = 10
+    val maxContentSize = (maxContentSizeInMb * 1024 * 1024)
+    // char is 2 bytes
+    val maxContentLength = maxContentSize / 2
     val pasteService = PasteService(InMemoryPasteRepo())
 
     val server = embeddedServer(Netty, port = 8080) {
@@ -42,7 +46,7 @@ fun main() {
             })
         }
 
-        routing(PasteRest(pasteService).api())
+        routing(PasteRest(pasteService, maxContentLength).api())
 
         routing {
             get("/") {
