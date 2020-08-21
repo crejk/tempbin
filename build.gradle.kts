@@ -29,8 +29,12 @@ dependencies {
     implementation("org.litote.kmongo:kmongo-coroutine:4.1.1")
 
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
-    testImplementation("io.kotest:kotest-runner-console-jvm:$kotestVersion")
+
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 val compileKotlin: KotlinCompile by tasks

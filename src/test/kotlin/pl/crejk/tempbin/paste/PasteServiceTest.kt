@@ -9,7 +9,7 @@ import java.util.*
 @ObsoleteCoroutinesApi
 class PasteServiceTest : BehaviorSpec({
     Given("a service") {
-        val service = PasteService(InMemoryPasteRepo())
+        val service = PasteService(InMemoryPasteRepo(), 1)
 
         When("created a paste") {
             val createdPaste = service.createPaste(PasteDTO("test"))
@@ -18,7 +18,7 @@ class PasteServiceTest : BehaviorSpec({
             Then("paste should be in repo") {
                 val paste = service.getPaste(id)
 
-                paste.right() shouldBe id
+                paste.right()?.id shouldBe id
             }
 
             Then("paste should be removed from repo") {
