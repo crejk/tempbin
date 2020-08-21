@@ -12,6 +12,7 @@ repositories {
 }
 
 val ktorVersion = "1.3.1"
+val kotestVersion = "4.2.0"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -27,8 +28,8 @@ dependencies {
     implementation("commons-codec:commons-codec:1.14")
     implementation("org.litote.kmongo:kmongo-coroutine:4.1.1")
 
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:4.1.3")
-    testImplementation("io.kotest:kotest-runner-console-jvm:4.1.3")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
+    testImplementation("io.kotest:kotest-runner-console-jvm:$kotestVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 }
 
