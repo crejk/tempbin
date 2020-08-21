@@ -14,5 +14,5 @@ object SecurityUtil {
         DigestUtils.sha256Hex(UUID.randomUUID().toBytes())
 
     fun prepareTextEncryptor(password: String = generatePassword(), salt: String = generateSalt()): TextEncryptor =
-        Encryptors.text(password, salt)
+        Encryptors.delux(password, salt)
 }
