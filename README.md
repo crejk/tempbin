@@ -6,10 +6,5 @@ Data is encrypted and decrypted by the server using
 in
 [GCM](https://en.wikipedia.org/wiki/Galois/Counter_Mode) mode.
 
-#### TODO
-- [ ] encrypted and decrypted data in the browser
-- [ ] implement 'delete after reading' feature
-- [ ] rate limit
-
 #### thanks to
 [szymex](https://github.com/szymex73) for frontend.
