@@ -1,18 +1,14 @@
 package pl.crejk.tempbin.paste
 
 import io.ktor.application.*
-import io.ktor.http.*
 import io.ktor.locations.*
 import io.ktor.request.*
-import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.routing.post
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import pl.crejk.tempbin.api.HttpResponse
 import pl.crejk.tempbin.api.respond
 import pl.crejk.tempbin.fp.Try
 import pl.crejk.tempbin.fp.filterOrElse
-import pl.crejk.tempbin.fp.flatMap
 import pl.crejk.tempbin.fp.leftPeekIf
 import java.util.*
 

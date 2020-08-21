@@ -14,7 +14,7 @@ sealed class Try<out T> {
         }
     }
 
-    fun filter(predicate: (T) -> Boolean): Try<T> = when (this) {
+    inline fun filter(predicate: (T) -> Boolean): Try<T> = when (this) {
         is Success -> if (predicate(this.value))
             this
         else
