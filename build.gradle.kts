@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.10"
 }
 
 group = "pl.crejk"
@@ -11,8 +11,8 @@ repositories {
     mavenCentral()
 }
 
-val ktorVersion = "1.3.1"
-val kotestVersion = "4.2.0"
+val ktorVersion = "1.4.1"
+val kotestVersion = "4.2.5"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -29,7 +29,6 @@ dependencies {
     implementation("org.litote.kmongo:kmongo-coroutine:4.1.1")
 
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
-
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 }
 
