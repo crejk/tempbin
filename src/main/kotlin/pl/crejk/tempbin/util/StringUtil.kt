@@ -2,7 +2,7 @@ package pl.crejk.tempbin.util
 
 import java.security.SecureRandom
 
-object StringUtil {
+internal object StringUtil {
 
     private val CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray()
 

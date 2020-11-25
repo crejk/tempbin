@@ -1,8 +1,8 @@
-package pl.crejk.tempbin.paste
+package pl.crejk.tempbin.paste.api
 
 import java.time.Duration
 
-data class PasteDTO(
+data class CreatePasteRequest(
     val content: String,
     val expiration: Expiration = Expiration.HOUR,
     val deleteAfterReading: Boolean = false

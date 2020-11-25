@@ -25,8 +25,8 @@ dependencies {
     implementation("io.ktor:ktor-locations:$ktorVersion")
     implementation("io.ktor:ktor-thymeleaf:$ktorVersion")
 
+    implementation("org.hashids:hashids:1.0.3")
     implementation("commons-codec:commons-codec:1.14")
-    implementation("org.litote.kmongo:kmongo-coroutine:4.1.1")
 
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")

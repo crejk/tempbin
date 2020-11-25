@@ -1,4 +1,4 @@
-package pl.crejk.tempbin.fp
+package pl.crejk.tempbin.common.fp
 
 sealed class Try<out T> {
 
@@ -22,7 +22,7 @@ sealed class Try<out T> {
         is Failure -> this
     }
 
-    fun <L> either(left: L): Either<L, T> = when (this) {
+    fun <L> toEither(left: L): Either<L, T> = when (this) {
         is Success -> right(this.value)
         is Failure -> left(left)
     }

@@ -1,4 +1,4 @@
-package pl.crejk.tempbin.paste
+package pl.crejk.tempbin.paste.api
 
 import io.ktor.http.*
 import pl.crejk.tempbin.api.HttpResponse

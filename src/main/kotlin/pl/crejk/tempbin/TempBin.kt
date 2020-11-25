@@ -1,7 +1,6 @@
 package pl.crejk.tempbin
 
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.mongodb.reactivestreams.client.MongoClients
 import io.ktor.application.*
 import io.ktor.features.*
 import io.ktor.jackson.*
@@ -12,13 +11,13 @@ import io.ktor.server.netty.*
 import io.ktor.thymeleaf.*
 import io.ktor.util.*
 import kotlinx.coroutines.ObsoleteCoroutinesApi
-import org.litote.kmongo.coroutine.coroutine
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
+import pl.crejk.tempbin.common.id.RandomIdGenerator
+import pl.crejk.tempbin.paste.PasteRepo
 import pl.crejk.tempbin.paste.PasteRest
 import pl.crejk.tempbin.paste.PasteService
-import pl.crejk.tempbin.paste.repo.PasteRepo
-import pl.crejk.tempbin.paste.repo.mem.InMemoryPasteRepo
-import pl.crejk.tempbin.paste.repo.mongo.MongoPasteRepo
+import pl.crejk.tempbin.paste.infrastructure.FlatPasteRepo
+import pl.crejk.tempbin.paste.infrastructure.InMemoryPasteRepo
 
 fun main(args: Array<String>) =
     EngineMain.main(args)
@@ -39,14 +38,13 @@ fun Application.module() {
     val maxContentLength = maxContentSize / 2
 
     val repoProperty = environment.config.property("tempbin.repo").getString()
-    val mongoUriProperty = environment.config.property("tempbin.mongodb.uri").getString()
 
     val repo: PasteRepo = if (repoProperty == "inMemory")
         InMemoryPasteRepo()
     else
-        MongoPasteRepo(MongoClients.create(mongoUriProperty).coroutine)
+        FlatPasteRepo()
 
-    val pasteService = PasteService(repo)
+    val pasteService = PasteService(repo, RandomIdGenerator())
 
     install(Compression) {
         default()

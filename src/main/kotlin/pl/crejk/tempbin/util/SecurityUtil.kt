@@ -5,7 +5,7 @@ import org.springframework.security.crypto.encrypt.Encryptors
 import org.springframework.security.crypto.encrypt.TextEncryptor
 import java.util.*
 
-object SecurityUtil {
+internal object SecurityUtil {
 
     fun generatePassword(): String =
         StringUtil.randomString(32)

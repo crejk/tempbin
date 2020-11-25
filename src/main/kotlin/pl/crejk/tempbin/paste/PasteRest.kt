@@ -4,13 +4,12 @@ import io.ktor.application.*
 import io.ktor.locations.*
 import io.ktor.request.*
 import io.ktor.routing.*
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import pl.crejk.tempbin.api.HttpResponse
 import pl.crejk.tempbin.api.respond
-import pl.crejk.tempbin.fp.Try
-import pl.crejk.tempbin.fp.filterOrElse
-import pl.crejk.tempbin.fp.leftPeekIf
-import java.util.*
+import pl.crejk.tempbin.common.fp.*
+import pl.crejk.tempbin.paste.api.CreatePasteRequest
+import pl.crejk.tempbin.paste.api.PasteError
+import pl.crejk.tempbin.util.SecurityUtil
 
 @KtorExperimentalLocationsAPI
 @Location("/paste/{id}/{password}")
@@ -19,7 +18,6 @@ data class GetPasteRawRequest(
     val password: String
 )
 
-@ObsoleteCoroutinesApi
 @KtorExperimentalLocationsAPI
 class PasteRest(
     private val service: PasteService,
@@ -27,13 +25,17 @@ class PasteRest(
 ) {
 
     fun api(): Routing.() -> Unit = {
-        get<GetPasteRawRequest> {
-            val id = UUID.fromString(it.id)
-
-            val response = service.getPasteContent(id, it.password)
+        get<GetPasteRawRequest> { request ->
+            val response = service.getPaste(request.id)
+                .filterOrElse(
+                    { !it.deleteAfterReading || it.visits < 2 },
+                    { PasteError.EXPIRED }
+                )
                 .leftPeekIf(
                     { error -> error == PasteError.EXPIRED },
-                    { service.removePaste(id) })
+                    { service.removePaste(request.id) })
+                .rightPeek { it.visits++ }
+                .flatMap { decrypt(request.password, it.content).toEither(PasteError.WRONG_PASSWORD) }
                 .fold(
                     { error -> error.response },
                     { content -> HttpResponse(content) }
@@ -43,10 +45,13 @@ class PasteRest(
         }
 
         post("paste") {
-            val result = Try { call.receive<PasteDTO>() }
+            val result = Try { call.receive<CreatePasteRequest>() }
                 .filter { it.content.isNotEmpty() }
-                .either(PasteError.NO_CONTENT)
-                .filterOrElse({ it.content.length < maxContentLength }, { PasteError.CONTENT_TOO_LARGE })
+                .toEither(PasteError.NO_CONTENT)
+                .filterOrElse(
+                    { it.content.length < maxContentLength },
+                    { PasteError.CONTENT_TOO_LARGE }
+                )
                 .map { service.createPaste(it) }
                 .fold(
                     { it.response },
@@ -55,5 +60,9 @@ class PasteRest(
 
             call.respond(result)
         }
+    }
+
+    private fun decrypt(password: String, encryptedContent: EncryptedContent) = Try {
+        SecurityUtil.prepareTextEncryptor(password, encryptedContent.salt).decrypt(encryptedContent.value)
     }
 }

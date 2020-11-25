@@ -1,22 +1,18 @@
 package pl.crejk.tempbin.paste
 
-import org.bson.codecs.pojo.annotations.BsonId
 import java.time.LocalDateTime
-import java.util.*
 
 data class Paste(
-    @BsonId
-    val id: PasteId,
+    val id: String,
     val content: EncryptedContent,
-    val salt: String,
     val creationTime: LocalDateTime,
     val expirationTime: LocalDateTime,
-    val deleteAfterReading: Boolean = false
+    val deleteAfterReading: Boolean = false,
+    var visits: Int = 0
 ) {
 
-    fun isExpired(): Boolean = this.expirationTime.isBefore(LocalDateTime.now())
+    fun isExpired(): Boolean =
+        this.expirationTime.isBefore(LocalDateTime.now())
 }
 
-typealias PasteId = UUID
-
-inline class EncryptedContent(val value: String)
+data class EncryptedContent(val value: String, val salt: String)
