@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 
 typealias PastePassword = String
 
-class PasteCreator(
+internal class PasteCreator(
     private val idGenerator: IdGenerator
 ) {
 

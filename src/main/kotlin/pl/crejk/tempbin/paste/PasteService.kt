@@ -44,7 +44,7 @@ class PasteService internal constructor(
         this.repo.removePaste(id)
         this.cache.invalidate(id)
     }
-}
 
-private inline fun <K : Any, V> Cache<K, V>.computeIfAbsent(key: K, mappingFunction: (K) -> V?): V? =
-    this.getIfPresent(key) ?: mappingFunction(key)?.also { this.put(key, it) }
+    private inline fun <K : Any, V> Cache<K, V>.computeIfAbsent(key: K, mappingFunction: (K) -> V?): V? =
+        this.getIfPresent(key) ?: mappingFunction(key)?.also { this.put(key, it) }
+}

@@ -19,7 +19,7 @@ data class GetPasteRawRequest(
 )
 
 @KtorExperimentalLocationsAPI
-class PasteRest(
+internal class PasteRest(
     private val service: PasteService,
     private val maxContentLength: Int
 ) {
