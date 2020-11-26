@@ -22,7 +22,7 @@ class LoggerDelegate<T : Any>: ReadOnlyProperty<T, Logger> {
 }
 
 @Suppress("NOTHING_TO_INLINE")
-private inline fun <T : Any> T.getClassForLogging() =
+private inline fun <T : Any> T.getClassForLogging(): Class<out Any> =
     this.javaClass.enclosingClass?.takeIf {
         it.kotlin.companionObject?.java == javaClass
     } ?: this.javaClass
