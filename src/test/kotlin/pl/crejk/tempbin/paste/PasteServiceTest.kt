@@ -8,8 +8,7 @@ import pl.crejk.tempbin.paste.api.CreatePasteRequest
 import pl.crejk.tempbin.paste.api.PasteError
 import pl.crejk.tempbin.paste.infrastructure.InMemoryPasteRepo
 
-@ObsoleteCoroutinesApi
-class PasteServiceTest : BehaviorSpec({
+internal class PasteServiceTest : BehaviorSpec({
     Given("a service") {
         val service = PasteService(InMemoryPasteRepo(), RandomIdGenerator())
 

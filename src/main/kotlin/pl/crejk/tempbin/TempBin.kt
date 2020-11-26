@@ -22,9 +22,8 @@ import pl.crejk.tempbin.paste.infrastructure.InMemoryPasteRepo
 fun main(args: Array<String>) =
     EngineMain.main(args)
 
-@KtorExperimentalAPI
-@ObsoleteCoroutinesApi
 @KtorExperimentalLocationsAPI
+@KtorExperimentalAPI
 fun Application.module() {
     install(ContentNegotiation) {
         jackson {
