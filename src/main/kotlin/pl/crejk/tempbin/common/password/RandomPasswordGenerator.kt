@@ -1,9 +1,9 @@
 package pl.crejk.tempbin.common.password
 
-import pl.crejk.tempbin.util.StringUtil
+import pl.crejk.tempbin.util.SecurityUtil
 
 class RandomPasswordGenerator : PasswordGenerator {
 
     override fun generate(): String =
-        StringUtil.randomString(32)
+        SecurityUtil.randomString(32)
 }
