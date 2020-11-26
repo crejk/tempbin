@@ -20,7 +20,6 @@ import pl.crejk.tempbin.paste.infrastructure.InMemoryPasteRepo
 import java.util.*
 
 @KtorExperimentalLocationsAPI
-@ObsoleteCoroutinesApi
 internal class PasteRestTest : DescribeSpec({
     val mapper = jacksonObjectMapper()
 
@@ -42,7 +41,7 @@ internal class PasteRestTest : DescribeSpec({
         engine.application.routing(PasteRest(service, maxContentLength).api())
 
         it("should not found") {
-            val response = engine.handleRequest(HttpMethod.Get, "/paste/${UUID.randomUUID()}/pass").response
+            val response = engine.handleRequest(HttpMethod.Get, "/paste/${idGenerator.generate()}/pass").response
 
             response.status() shouldBe HttpStatusCode.NotFound
         }
