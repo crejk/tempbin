@@ -1,4 +1,4 @@
-package pl.crejk.tempbin.paste
+package pl.crejk.tempbin.common
 
 import pl.crejk.tempbin.common.id.IdGenerator
 import java.util.concurrent.atomic.AtomicInteger

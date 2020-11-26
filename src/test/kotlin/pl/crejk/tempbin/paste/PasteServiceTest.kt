@@ -2,8 +2,8 @@ package pl.crejk.tempbin.paste
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import pl.crejk.tempbin.common.id.RandomIdGenerator
+import pl.crejk.tempbin.common.FakePasswordGenerator
+import pl.crejk.tempbin.common.IncrementalIdGenerator
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
 import pl.crejk.tempbin.paste.api.PasteError
 import pl.crejk.tempbin.paste.infrastructure.InMemoryPasteRepo

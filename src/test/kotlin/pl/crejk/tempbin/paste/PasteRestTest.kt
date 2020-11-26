@@ -12,12 +12,11 @@ import io.ktor.jackson.*
 import io.ktor.locations.*
 import io.ktor.routing.*
 import io.ktor.server.testing.*
-import kotlinx.coroutines.ObsoleteCoroutinesApi
-import pl.crejk.tempbin.common.id.RandomIdGenerator
+import pl.crejk.tempbin.common.FakePasswordGenerator
+import pl.crejk.tempbin.common.IncrementalIdGenerator
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
 import pl.crejk.tempbin.paste.api.PasteDto
 import pl.crejk.tempbin.paste.infrastructure.InMemoryPasteRepo
-import java.util.*
 
 @KtorExperimentalLocationsAPI
 internal class PasteRestTest : DescribeSpec({

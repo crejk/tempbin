@@ -1,4 +1,4 @@
-package pl.crejk.tempbin.paste
+package pl.crejk.tempbin.common
 
 import pl.crejk.tempbin.common.password.PasswordGenerator
 
