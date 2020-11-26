@@ -14,6 +14,7 @@ import io.ktor.routing.*
 import io.ktor.server.testing.*
 import pl.crejk.tempbin.common.FakePasswordGenerator
 import pl.crejk.tempbin.common.IncrementalIdGenerator
+import pl.crejk.tempbin.common.testPasteService
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
 import pl.crejk.tempbin.paste.api.PasteDto
 import pl.crejk.tempbin.paste.infrastructure.InMemoryPasteRepo
@@ -22,10 +23,6 @@ import pl.crejk.tempbin.paste.infrastructure.InMemoryPasteRepo
 internal class PasteRestTest : DescribeSpec({
     describe("rest server") {
         val mapper = jacksonObjectMapper()
-        val repo = InMemoryPasteRepo()
-        val idGenerator = IncrementalIdGenerator()
-        val passwordGenerator = FakePasswordGenerator()
-        val service = PasteService(repo, idGenerator, passwordGenerator)
         val maxContentLength = (1 * 1024) / 2
         val engine = TestApplicationEngine()
 
@@ -36,8 +33,9 @@ internal class PasteRestTest : DescribeSpec({
                 registerKotlinModule()
             }
         }
+
         engine.application.install(Locations)
-        engine.application.routing(PasteRest(service, maxContentLength).api())
+        engine.application.routing(PasteRest(testPasteService(), maxContentLength).api())
 
         it("should not found") {
             val response = engine.handleRequest(HttpMethod.Get, "/paste/1/pass").response

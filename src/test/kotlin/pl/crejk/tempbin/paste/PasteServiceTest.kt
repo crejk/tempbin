@@ -4,13 +4,14 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import pl.crejk.tempbin.common.FakePasswordGenerator
 import pl.crejk.tempbin.common.IncrementalIdGenerator
+import pl.crejk.tempbin.common.testPasteService
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
 import pl.crejk.tempbin.paste.api.PasteError
 import pl.crejk.tempbin.paste.infrastructure.InMemoryPasteRepo
 
 internal class PasteServiceTest : BehaviorSpec({
     Given("a service") {
-        val service = PasteService(InMemoryPasteRepo(), IncrementalIdGenerator(), FakePasswordGenerator())
+        val service = testPasteService()
 
         When("created a paste") {
             val createdPaste = service.createPaste(CreatePasteRequest("test"))
