@@ -11,7 +11,7 @@ repositories {
     mavenCentral()
 }
 
-val ktorVersion = "1.4.1"
+val ktorVersion = "1.4.2"
 val kotestVersion = "4.2.5"
 
 dependencies {
