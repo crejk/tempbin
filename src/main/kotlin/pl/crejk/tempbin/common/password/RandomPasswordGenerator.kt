@@ -5,5 +5,5 @@ import pl.crejk.tempbin.util.SecurityUtil
 class RandomPasswordGenerator : PasswordGenerator {
 
     override fun generate(): String =
-        SecurityUtil.randomString(32)
+        SecurityUtil.generateRandomString(32)
 }
