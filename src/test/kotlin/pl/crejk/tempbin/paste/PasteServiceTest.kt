@@ -10,7 +10,7 @@ import pl.crejk.tempbin.paste.infrastructure.InMemoryPasteRepo
 
 internal class PasteServiceTest : BehaviorSpec({
     Given("a service") {
-        val service = PasteService(InMemoryPasteRepo(), RandomIdGenerator())
+        val service = PasteService(InMemoryPasteRepo(), IncrementalIdGenerator(), FakePasswordGenerator())
 
         When("created a paste") {
             val createdPaste = service.createPaste(CreatePasteRequest("test"))

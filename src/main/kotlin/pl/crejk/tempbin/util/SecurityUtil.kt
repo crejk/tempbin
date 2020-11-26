@@ -7,12 +7,9 @@ import java.util.*
 
 internal object SecurityUtil {
 
-    fun generatePassword(): String =
-        StringUtil.randomString(32)
-
     fun generateSalt(): String =
         DigestUtils.sha256Hex(UUID.randomUUID().toBytes())
 
-    fun prepareTextEncryptor(password: String = generatePassword(), salt: String = generateSalt()): TextEncryptor =
+    fun prepareTextEncryptor(password: String, salt: String = generateSalt()): TextEncryptor =
         Encryptors.delux(password, salt)
 }

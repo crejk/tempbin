@@ -43,7 +43,7 @@ fun Application.module() {
     else
         FlatPasteRepo()
 
-    val pasteService = PasteService(repo, RandomIdGenerator())
+    val pasteService = PasteService(repo)
 
     install(Compression) {
         default()

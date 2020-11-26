@@ -21,12 +21,12 @@ import java.util.*
 
 @KtorExperimentalLocationsAPI
 internal class PasteRestTest : DescribeSpec({
-    val mapper = jacksonObjectMapper()
-
     describe("rest server") {
+        val mapper = jacksonObjectMapper()
         val repo = InMemoryPasteRepo()
-        val idGenerator = RandomIdGenerator()
-        val service = PasteService(repo, idGenerator)
+        val idGenerator = IncrementalIdGenerator()
+        val passwordGenerator = FakePasswordGenerator()
+        val service = PasteService(repo, idGenerator, passwordGenerator)
         val maxContentLength = (1 * 1024) / 2
         val engine = TestApplicationEngine()
 
@@ -41,31 +41,48 @@ internal class PasteRestTest : DescribeSpec({
         engine.application.routing(PasteRest(service, maxContentLength).api())
 
         it("should not found") {
-            val response = engine.handleRequest(HttpMethod.Get, "/paste/${idGenerator.generate()}/pass").response
+            val response = engine.handleRequest(HttpMethod.Get, "/paste/1/pass").response
 
             response.status() shouldBe HttpStatusCode.NotFound
         }
 
-        describe("adding paste") {
+        it("should add paste") {
             val pasteDto = engine.handleRequest(HttpMethod.Post, "paste") {
                 this.setBody(mapper.writeValueAsString(CreatePasteRequest("message")))
                 this.addHeader("Content-Type", "application/json")
             }.response.content!!.let { mapper.readValue<PasteDto>(it) }
 
-            it("added paste should be returned") {
-                val response = engine.handleRequest(HttpMethod.Get, "/paste/${pasteDto.id}/${pasteDto.password}").response
-
-                response.content shouldBe "message"
-            }
-
-            it("should fail because password is wrong") {
-                val response = engine.handleRequest(HttpMethod.Get, "/paste/${pasteDto.id}/wrong_password").response
-
-                response.status() shouldBe HttpStatusCode.Unauthorized
-            }
+            pasteDto.id shouldBe "1"
         }
 
-        it("too large content status should be returned") {
+        it("should add second paste") {
+            val pasteDto = engine.handleRequest(HttpMethod.Post, "paste") {
+                this.setBody(mapper.writeValueAsString(CreatePasteRequest("message")))
+                this.addHeader("Content-Type", "application/json")
+            }.response.content!!.let { mapper.readValue<PasteDto>(it) }
+
+            pasteDto.id shouldBe "2"
+        }
+
+        it("first added paste's content should be returned") {
+            val response = engine.handleRequest(HttpMethod.Get, "/paste/1/password").response
+
+            response.content shouldBe "message"
+        }
+
+        it("second added paste's content should be returned") {
+            val response = engine.handleRequest(HttpMethod.Get, "/paste/2/password").response
+
+            response.content shouldBe "message"
+        }
+
+        it("should fail when password is wrong") {
+            val response = engine.handleRequest(HttpMethod.Get, "/paste/1/wrong_password").response
+
+            response.status() shouldBe HttpStatusCode.Unauthorized
+        }
+
+        it("should fail when content is too large") {
             val generatedPasteContent = generateString(4)
 
             val response = engine.handleRequest(HttpMethod.Post, "/paste") {

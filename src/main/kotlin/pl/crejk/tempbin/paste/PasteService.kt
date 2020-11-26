@@ -6,7 +6,10 @@ import pl.crejk.tempbin.common.fp.Either
 import pl.crejk.tempbin.common.fp.filterOrElse
 import pl.crejk.tempbin.common.fp.toEither
 import pl.crejk.tempbin.common.id.IdGenerator
+import pl.crejk.tempbin.common.id.RandomIdGenerator
 import pl.crejk.tempbin.common.logger.logger
+import pl.crejk.tempbin.common.password.PasswordGenerator
+import pl.crejk.tempbin.common.password.RandomPasswordGenerator
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
 import pl.crejk.tempbin.paste.api.PasteDto
 import pl.crejk.tempbin.paste.api.PasteError
@@ -14,12 +17,13 @@ import java.util.concurrent.TimeUnit
 
 class PasteService internal constructor(
     private val repo: PasteRepo,
-    idGenerator: IdGenerator
+    idGenerator: IdGenerator = RandomIdGenerator(),
+    passwordGenerator: PasswordGenerator = RandomPasswordGenerator()
 ) {
 
     private val logger by logger()
 
-    private val creator = PasteCreator(idGenerator)
+    private val creator = PasteCreator(idGenerator, passwordGenerator)
     private val cache = Caffeine.newBuilder()
         .expireAfterAccess(5, TimeUnit.MINUTES)
         .build<String, Paste>()
