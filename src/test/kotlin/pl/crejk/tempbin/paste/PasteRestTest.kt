@@ -94,7 +94,7 @@ internal class PasteRestTest : DescribeSpec({
                 this.addHeader("Content-Type", "application/json")
             }.response
 
-            println(response.status())
+            response.status() shouldBe HttpStatusCode.BadRequest
         }
 
     }
