@@ -1,12 +1,16 @@
-package pl.crejk.tempbin.paste
+package pl.crejk.tempbin.paste.infrastructure
 
 import io.ktor.application.*
 import io.ktor.locations.*
 import io.ktor.request.*
 import io.ktor.routing.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import pl.crejk.tempbin.api.HttpResponse
 import pl.crejk.tempbin.api.respond
 import pl.crejk.tempbin.common.fp.*
+import pl.crejk.tempbin.paste.EncryptedContent
+import pl.crejk.tempbin.paste.PasteService
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
 import pl.crejk.tempbin.paste.api.PasteError
 import pl.crejk.tempbin.util.SecurityUtil
@@ -45,20 +49,25 @@ internal class PasteRest(
         }
 
         post("paste") {
-            val result = Try { call.receive<CreatePasteRequest>() }
-                .filter { it.content.isNotEmpty() }
-                .toEither(PasteError.NO_CONTENT)
-                .filterOrElse(
-                    { it.content.length < maxContentLength },
-                    { PasteError.CONTENT_TOO_LARGE }
-                )
-                .map { service.createPaste(it) }
-                .fold(
-                    { it.response },
-                    { HttpResponse(it) }
-                )
+            withContext(Dispatchers.IO) {
+                val result = Try { call.receive<CreatePasteRequest>() }
+                    .toEither(PasteError.BAD_REQUEST)
+                    .filterOrElse(
+                        { it.content.isNotEmpty() },
+                        { PasteError.NO_CONTENT }
+                    )
+                    .filterOrElse(
+                        { it.content.length < maxContentLength },
+                        { PasteError.CONTENT_TOO_LARGE }
+                    )
+                    .map { service.createPaste(it) }
+                    .fold(
+                        { it.response },
+                        { HttpResponse(it) }
+                    )
 
-            call.respond(result)
+                call.respond(result)
+            }
         }
     }
 

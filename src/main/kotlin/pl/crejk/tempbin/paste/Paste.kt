@@ -15,4 +15,10 @@ data class Paste(
         this.expirationTime.isBefore(LocalDateTime.now())
 }
 
-data class EncryptedContent(val value: String, val salt: String)
+data class EncryptedContent(val value: String, val salt: String) {
+
+    companion object {
+
+        internal val EMPTY = EncryptedContent("", "")
+    }
+}
