@@ -27,6 +27,7 @@ dependencies {
 
     implementation("org.hashids:hashids:1.0.3")
     implementation("commons-codec:commons-codec:1.14")
+    implementation("ch.qos.logback:logback-classic:1.2.3")
 
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
