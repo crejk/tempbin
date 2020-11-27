@@ -163,22 +163,24 @@
 <script>
     async function submit() {
         const textArea = document.getElementById('content')
-        const duration = document.getElementById('duration')
+        const durationArea = document.getElementById('duration')
         const deleteAfterReading = document.getElementById('deleteAfterReading')
 
         const content = textArea.value
+        const duration = durationArea.value
 
-        if (content.length === 0) {
+        if (content.length === 0 || duration.length === 0) {
             return
         }
 
         const requestContent = {
-            expiration: parseInt(duration.value),
             content: content,
+            expiration: parseInt(duration),
             deleteAfterReading: deleteAfterReading.checked
         }
 
         const response = await putData('paste/', requestContent)
+
         const json = JSON.parse(response);
         const id = json.id
         const password = json.password
