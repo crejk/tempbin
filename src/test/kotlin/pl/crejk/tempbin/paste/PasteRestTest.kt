@@ -12,12 +12,10 @@ import io.ktor.jackson.*
 import io.ktor.locations.*
 import io.ktor.routing.*
 import io.ktor.server.testing.*
-import pl.crejk.tempbin.common.FakePasswordGenerator
-import pl.crejk.tempbin.common.IncrementalIdGenerator
 import pl.crejk.tempbin.common.testPasteService
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
 import pl.crejk.tempbin.paste.api.PasteDto
-import pl.crejk.tempbin.paste.infrastructure.InMemoryPasteRepo
+import pl.crejk.tempbin.paste.infrastructure.PasteRest
 
 @KtorExperimentalLocationsAPI
 internal class PasteRestTest : DescribeSpec({
@@ -89,6 +87,16 @@ internal class PasteRestTest : DescribeSpec({
 
             response.status() shouldBe HttpStatusCode.PayloadTooLarge
         }
+
+        it("should fail when adding paste with invalid duration") {
+            val response = engine.handleRequest(HttpMethod.Post, "paste") {
+                this.setBody("""{"content":"message", "duration": "invalid"}""")
+                this.addHeader("Content-Type", "application/json")
+            }.response
+
+            println(response.status())
+        }
+
     }
 }) {
 
