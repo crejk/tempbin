@@ -3,6 +3,7 @@ package pl.crejk.tempbin
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.ktor.application.*
 import io.ktor.features.*
+import io.ktor.http.*
 import io.ktor.jackson.*
 import io.ktor.locations.*
 import io.ktor.response.*
@@ -10,11 +11,9 @@ import io.ktor.routing.*
 import io.ktor.server.netty.*
 import io.ktor.thymeleaf.*
 import io.ktor.util.*
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
-import pl.crejk.tempbin.common.id.RandomIdGenerator
 import pl.crejk.tempbin.paste.PasteRepo
-import pl.crejk.tempbin.paste.PasteRest
+import pl.crejk.tempbin.paste.infrastructure.PasteRest
 import pl.crejk.tempbin.paste.PasteService
 import pl.crejk.tempbin.paste.infrastructure.FlatPasteRepo
 import pl.crejk.tempbin.paste.infrastructure.InMemoryPasteRepo
@@ -44,6 +43,13 @@ fun Application.module() {
         FlatPasteRepo()
 
     val pasteService = PasteService(repo)
+
+    install(StatusPages) {
+        exception<Throwable> { cause ->
+            cause.printStackTrace()
+            call.respond(HttpStatusCode.InternalServerError)
+        }
+    }
 
     install(Compression) {
         default()
