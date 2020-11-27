@@ -2,6 +2,7 @@ package pl.crejk.tempbin.paste
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import org.slf4j.LoggerFactory
 import pl.crejk.tempbin.common.fp.Either
 import pl.crejk.tempbin.common.fp.filterOrElse
 import pl.crejk.tempbin.common.fp.toEither
@@ -35,10 +36,11 @@ class PasteService internal constructor(
 
         return if (this.repo.savePaste(paste)) {
             this.cache.put(paste.id, paste)
+            this.logger.info("Created a paste.")
 
             PasteDto(paste.id, password)
         } else {
-            this.logger.error("Failed to save paste: $paste")
+            this.logger.error("Failed to save paste: ${paste.copy(content = EncryptedContent.EMPTY)}")
             PasteDto.EMPTY
         }
     }
@@ -52,7 +54,7 @@ class PasteService internal constructor(
         this.repo.removePaste(id)
         this.cache.invalidate(id)
     }
-
-    private inline fun <K : Any, V> Cache<K, V>.computeIfAbsent(key: K, mappingFunction: (K) -> V?): V? =
-        this.getIfPresent(key) ?: mappingFunction(key)?.also { this.put(key, it) }
 }
+
+private inline fun <K : Any, V> Cache<K, V>.computeIfAbsent(key: K, mappingFunction: (K) -> V?): V? =
+    this.getIfPresent(key) ?: mappingFunction(key)?.also { this.put(key, it) }
