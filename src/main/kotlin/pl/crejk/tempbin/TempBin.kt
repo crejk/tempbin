@@ -11,6 +11,7 @@ import io.ktor.routing.*
 import io.ktor.server.netty.*
 import io.ktor.thymeleaf.*
 import io.ktor.util.*
+import io.vavr.jackson.datatype.VavrModule
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 import pl.crejk.tempbin.paste.PasteRepo
 import pl.crejk.tempbin.paste.infrastructure.PasteRest
@@ -27,6 +28,7 @@ fun Application.module() {
     install(ContentNegotiation) {
         jackson {
             this.registerKotlinModule()
+            this.registerModule(VavrModule())
         }
     }
 
@@ -42,7 +44,7 @@ fun Application.module() {
     else
         FlatPasteRepo()
 
-    val pasteService = PasteService(repo)
+    val pasteService = PasteService(repo, maxContentLength = maxContentLength)
 
     install(StatusPages) {
         exception<Throwable> { cause ->
@@ -65,7 +67,7 @@ fun Application.module() {
         })
     }
 
-    routing(PasteRest(pasteService, maxContentLength).api())
+    routing(PasteRest(pasteService).api())
 
     routing {
         get("/") {

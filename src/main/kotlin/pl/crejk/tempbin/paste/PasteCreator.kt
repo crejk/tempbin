@@ -1,32 +1,46 @@
 package pl.crejk.tempbin.paste
 
+import io.vavr.control.Either
+import io.vavr.kotlin.right
 import pl.crejk.tempbin.common.id.IdGenerator
 import pl.crejk.tempbin.common.password.PasswordGenerator
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
+import pl.crejk.tempbin.common.ValidationError
 import pl.crejk.tempbin.util.SecurityUtil
 import java.time.LocalDateTime
 
-typealias PastePassword = String
+internal data class PasteWithPassword(
+    val paste: Paste,
+    val password: String
+)
 
 internal class PasteCreator(
     private val idGenerator: IdGenerator,
-    private val passwordGenerator: PasswordGenerator
+    private val passwordGenerator: PasswordGenerator,
+    private val maxContentLength: Int
 ) {
 
-    fun create(request: CreatePasteRequest): Pair<Paste, PastePassword> {
-        val pasteId = this.idGenerator.generate()
-        val password = this.passwordGenerator.generate()
-        val salt = SecurityUtil.generateSalt()
-        val encryptedContent = SecurityUtil.prepareTextEncryptor(password, salt).encrypt(request.content)
-        val creationTime = LocalDateTime.now()
-        val expirationTime = creationTime.plusNanos(request.expiration.nanos)
+    fun create(request: CreatePasteRequest): Either<ValidationError, PasteWithPassword> =
+        this.validateRequest(request)
+            .map {
+                val password = this.passwordGenerator.generate()
+                val salt = SecurityUtil.generateSalt()
+                val creationTime = LocalDateTime.now()
 
-        return Paste(
-            pasteId,
-            EncryptedContent(encryptedContent, salt),
-            creationTime,
-            expirationTime,
-            request.deleteAfterReading
-        ) to password
-    }
+                PasteWithPassword(
+                    Paste(
+                        id = this.idGenerator.generate(),
+                        content = EncryptedContent(password, salt, request.content),
+                        creationTime = creationTime,
+                        expirationTime = creationTime.plusMinutes(request.expiration.minutes),
+                        deleteAfterReading = request.deleteAfterReading
+                    ),
+                    password
+                )
+            }
+
+    private fun validateRequest(request: CreatePasteRequest): Either<ValidationError, CreatePasteRequest> =
+        right<ValidationError, CreatePasteRequest>(request)
+            .filterOrElse({ it.content.isNotEmpty() }, { ValidationError("Content is empty.") })
+            .filterOrElse({ it.content.length < maxContentLength }, { ValidationError("Content too large.") })
 }

@@ -13,6 +13,7 @@ repositories {
 
 val ktorVersion = "1.4.2"
 val kotestVersion = "4.2.5"
+val vavrVersion = "0.10.2"
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -24,6 +25,9 @@ dependencies {
     implementation("io.ktor:ktor-jackson:$ktorVersion")
     implementation("io.ktor:ktor-locations:$ktorVersion")
     implementation("io.ktor:ktor-thymeleaf:$ktorVersion")
+
+    implementation("io.vavr:vavr-kotlin:$vavrVersion")
+    implementation("io.vavr:vavr-jackson:$vavrVersion")
 
     implementation("org.hashids:hashids:1.0.3")
     implementation("commons-codec:commons-codec:1.14")

@@ -9,7 +9,7 @@ internal class FlatPasteRepo : PasteRepo {
         TODO("Not yet implemented")
     }
 
-    override suspend fun savePaste(paste: Paste): Boolean {
+    override suspend fun savePaste(paste: Paste): Paste {
         TODO("Not yet implemented")
     }
 

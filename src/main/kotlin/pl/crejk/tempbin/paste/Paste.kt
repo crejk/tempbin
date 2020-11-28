@@ -1,5 +1,6 @@
 package pl.crejk.tempbin.paste
 
+import pl.crejk.tempbin.util.SecurityUtil
 import java.time.LocalDateTime
 
 data class Paste(
@@ -7,8 +8,7 @@ data class Paste(
     val content: EncryptedContent,
     val creationTime: LocalDateTime,
     val expirationTime: LocalDateTime,
-    val deleteAfterReading: Boolean = false,
-    var visits: Int = 0
+    val deleteAfterReading: Boolean = false
 ) {
 
     fun isExpired(): Boolean =
@@ -19,6 +19,10 @@ data class EncryptedContent(val value: String, val salt: String) {
 
     companion object {
 
-        internal val EMPTY = EncryptedContent("", "")
+        operator fun invoke(password: String, salt: String, content: String): EncryptedContent =
+            EncryptedContent(
+                SecurityUtil.prepareTextEncryptor(password, salt).encrypt(content),
+                salt
+            )
     }
 }

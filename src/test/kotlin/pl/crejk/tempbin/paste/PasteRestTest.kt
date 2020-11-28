@@ -33,7 +33,7 @@ internal class PasteRestTest : DescribeSpec({
         }
 
         engine.application.install(Locations)
-        engine.application.routing(PasteRest(testPasteService(), maxContentLength).api())
+        engine.application.routing(PasteRest(testPasteService(maxContentLength)).api())
 
         it("should not found") {
             val response = engine.handleRequest(HttpMethod.Get, "/paste/1/pass").response
@@ -85,7 +85,7 @@ internal class PasteRestTest : DescribeSpec({
                 this.addHeader("Content-Type", "application/json")
             }.response
 
-            response.status() shouldBe HttpStatusCode.PayloadTooLarge
+            response.status() shouldBe HttpStatusCode.BadRequest
         }
 
         it("should fail when adding paste with invalid duration") {
@@ -96,7 +96,6 @@ internal class PasteRestTest : DescribeSpec({
 
             response.status() shouldBe HttpStatusCode.BadRequest
         }
-
     }
 }) {
 
