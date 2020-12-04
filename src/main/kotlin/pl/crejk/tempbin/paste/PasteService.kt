@@ -8,11 +8,11 @@ import io.vavr.kotlin.option
 import pl.crejk.tempbin.common.ValidationError
 import pl.crejk.tempbin.common.id.IdGenerator
 import pl.crejk.tempbin.common.id.RandomIdGenerator
-import pl.crejk.tempbin.common.inlineMap
-import pl.crejk.tempbin.common.inlinePeek
 import pl.crejk.tempbin.common.password.PasswordGenerator
 import pl.crejk.tempbin.common.password.RandomPasswordGenerator
-import pl.crejk.tempbin.paste.api.*
+import pl.crejk.tempbin.paste.api.CreatePasteRequest
+import pl.crejk.tempbin.paste.api.GetPasteError
+import pl.crejk.tempbin.paste.api.PasteDto
 import pl.crejk.tempbin.util.SecurityUtil
 import java.util.concurrent.TimeUnit
 
@@ -28,29 +28,36 @@ class PasteService internal constructor(
         .expireAfterAccess(5, TimeUnit.MINUTES)
         .build<String, Paste>()
 
-    suspend fun createPaste(request: CreatePasteRequest): Either<ValidationError, PasteDto> =
+    fun createPaste(request: CreatePasteRequest): Either<ValidationError, PasteDto> =
         this.creator.create(request)
-            .inlineMap { it.copy(paste = this.savePaste(it.paste)) }
+            .map { it.copy(paste = this.savePaste(it.paste)) }
             .map { PasteDto(it.paste.id, it.password) }
 
-    private suspend fun savePaste(paste: Paste): Paste {
+    private fun savePaste(paste: Paste): Paste {
         this.repo.savePaste(paste)
         this.cache.put(paste.id, paste)
         return paste
     }
 
-    suspend fun getPaste(id: String): Either<GetPasteError, Paste> =
+    fun getPaste(id: String): Either<GetPasteError, Paste> =
         this.cache.computeIfAbsent(id, { this.repo.findPaste(id) })
             .option()
             .toEither(GetPasteError.NOT_FOUND)
-            .inlinePeek { if(it.deleteAfterReading) this.removePaste(id) }
+            .peek { deletePasteIfNecessary(it) }
+            .filterOrElse({ !it.isExpired() }, { GetPasteError.NOT_FOUND })
 
-    suspend fun removePaste(id: String) {
+    private fun deletePasteIfNecessary(paste: Paste) {
+        if (paste.deleteAfterReading || paste.isExpired()) {
+            this.removePaste(paste.id)
+        }
+    }
+
+    fun removePaste(id: String) {
         this.repo.removePaste(id)
         this.cache.invalidate(id)
     }
 
-    suspend fun getPasteContent(id: String, password: String): Either<GetPasteError, String> =
+    fun getPasteContent(id: String, password: String): Either<GetPasteError, String> =
         this.getPaste(id).flatMap { decrypt(password, it.content).toEither(GetPasteError.WRONG_PASSWORD) }
 
     private fun decrypt(password: String, encryptedContent: EncryptedContent) = Try.of {

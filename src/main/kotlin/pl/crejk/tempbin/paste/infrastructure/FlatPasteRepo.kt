@@ -5,15 +5,15 @@ import pl.crejk.tempbin.paste.PasteRepo
 
 internal class FlatPasteRepo : PasteRepo {
 
-    override suspend fun findPaste(id: String): Paste? {
+    override fun findPaste(id: String): Paste? {
         TODO("Not yet implemented")
     }
 
-    override suspend fun savePaste(paste: Paste): Paste {
+    override fun savePaste(paste: Paste): Paste {
         TODO("Not yet implemented")
     }
 
-    override suspend fun removePaste(id: String): Boolean {
+    override fun removePaste(id: String) {
         TODO("Not yet implemented")
     }
 }

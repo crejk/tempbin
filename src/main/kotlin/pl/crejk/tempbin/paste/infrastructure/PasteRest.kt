@@ -8,7 +8,6 @@ import kotlinx.coroutines.withContext
 import pl.crejk.tempbin.api.HttpResponse
 import pl.crejk.tempbin.api.respond
 import pl.crejk.tempbin.common.ValidationError
-import pl.crejk.tempbin.common.inlineFlatMap
 import pl.crejk.tempbin.common.receiveOption
 import pl.crejk.tempbin.paste.PasteService
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
@@ -40,7 +39,7 @@ internal class PasteRest(
             withContext(Dispatchers.IO) {
                 val response = call.receiveOption<CreatePasteRequest>()
                     .toEither { ValidationError("Bad request") }
-                    .inlineFlatMap { service.createPaste(it) }
+                    .flatMap { service.createPaste(it) }
                     .fold(
                         { it.toHttpResponse() },
                         { HttpResponse(it) }
