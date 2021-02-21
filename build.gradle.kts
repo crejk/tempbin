@@ -1,17 +1,18 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.10"
+    kotlin("jvm") version "1.4.30"
 }
 
 group = "pl.crejk"
 version = "1.0-SNAPSHOT"
+java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
     mavenCentral()
 }
 
-val ktorVersion = "1.4.2"
+val ktorVersion = "1.5.1"
 val kotestVersion = "4.2.5"
 val vavrVersion = "0.10.2"
 
@@ -37,13 +38,18 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 }
 
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-Xjsr305=strict")
+        jvmTarget = "11"
+    }
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }
 
 val compileKotlin: KotlinCompile by tasks
-
 compileKotlin.kotlinOptions {
     freeCompilerArgs = listOf("-Xinline-classes")
-    jvmTarget = "1.8"
 }
