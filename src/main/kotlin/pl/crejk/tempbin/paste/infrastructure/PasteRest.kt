@@ -6,8 +6,6 @@ import io.ktor.locations.Location
 import io.ktor.locations.get
 import io.ktor.routing.Routing
 import io.ktor.routing.post
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import pl.crejk.tempbin.api.HttpResponse
 import pl.crejk.tempbin.api.respond
 import pl.crejk.tempbin.common.ValidationError
@@ -31,7 +29,7 @@ internal class PasteRest(
         get<GetPasteRawRequest> { request ->
             val response = service.getPasteContent(request.id, request.password)
                 .fold(
-                    { it.response },
+                    { error -> error.response },
                     { HttpResponse(it) }
                 )
 
@@ -39,17 +37,15 @@ internal class PasteRest(
         }
 
         post("paste") {
-            withContext(Dispatchers.IO) {
-                val response = call.receiveOption<CreatePasteRequest>()
-                    .toEither { ValidationError("Bad request") }
-                    .flatMap { service.createPaste(it) }
-                    .fold(
-                        { it.toHttpResponse() },
-                        { HttpResponse(it) }
-                    )
+            val response = call.receiveOption<CreatePasteRequest>()
+                .toEither { ValidationError("Bad request") }
+                .flatMap { service.createPaste(it) }
+                .fold(
+                    { error -> error.toHttpResponse() },
+                    { HttpResponse(it) }
+                )
 
-                call.respond(response)
-            }
+            call.respond(response)
         }
     }
 }

@@ -1,10 +1,10 @@
 package pl.crejk.tempbin.util
 
-import java.security.SecureRandom
-import java.util.UUID
 import org.apache.commons.codec.digest.DigestUtils
 import org.springframework.security.crypto.encrypt.Encryptors
 import org.springframework.security.crypto.encrypt.TextEncryptor
+import java.security.SecureRandom
+import java.util.UUID
 
 internal object SecurityUtil {
 

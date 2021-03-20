@@ -1,7 +1,7 @@
 package pl.crejk.tempbin.paste
 
-import java.time.LocalDateTime
 import pl.crejk.tempbin.util.SecurityUtil
+import java.time.LocalDateTime
 
 data class Paste(
     val id: String,

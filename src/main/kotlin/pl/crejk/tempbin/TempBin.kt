@@ -17,7 +17,6 @@ import io.ktor.routing.routing
 import io.ktor.server.netty.EngineMain
 import io.ktor.thymeleaf.Thymeleaf
 import io.ktor.thymeleaf.ThymeleafContent
-import io.ktor.util.KtorExperimentalAPI
 import io.vavr.jackson.datatype.VavrModule
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 import pl.crejk.tempbin.paste.PasteRepo
@@ -30,7 +29,6 @@ fun main(args: Array<String>) =
     EngineMain.main(args)
 
 @KtorExperimentalLocationsAPI
-@KtorExperimentalAPI
 fun Application.module() {
     install(ContentNegotiation) {
         jackson {
