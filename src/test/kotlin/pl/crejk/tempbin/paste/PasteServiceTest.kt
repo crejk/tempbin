@@ -2,7 +2,6 @@ package pl.crejk.tempbin.paste
 
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
-import pl.crejk.tempbin.common.testPasteService
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
 import pl.crejk.tempbin.paste.api.GetPasteError
 

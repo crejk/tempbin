@@ -3,6 +3,8 @@ package pl.crejk.tempbin.paste
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.kotest.assertions.ktor.shouldHaveContent
+import io.kotest.assertions.ktor.shouldHaveStatus
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.application.install
@@ -16,7 +18,6 @@ import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
-import pl.crejk.tempbin.common.testPasteService
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
 import pl.crejk.tempbin.paste.api.PasteDto
 import pl.crejk.tempbin.paste.infrastructure.PasteRest
@@ -39,10 +40,10 @@ internal class PasteRestTest : DescribeSpec({
         engine.application.install(Locations)
         engine.application.routing(PasteRest(testPasteService(maxContentLength)).api())
 
-        it("should not found") {
+        it("paste should not exist") {
             val response = engine.handleRequest(HttpMethod.Get, "/paste/1/pass").response
 
-            response.status() shouldBe HttpStatusCode.NotFound
+            response shouldHaveStatus HttpStatusCode.NotFound
         }
 
         it("should add paste") {
@@ -56,7 +57,7 @@ internal class PasteRestTest : DescribeSpec({
 
         it("should add second paste") {
             val pasteDto = engine.handleRequest(HttpMethod.Post, "paste") {
-                this.setBody(mapper.writeValueAsString(CreatePasteRequest("message")))
+                this.setBody(mapper.writeValueAsString(CreatePasteRequest("message2")))
                 this.addHeader("Content-Type", "application/json")
             }.response.content!!.let { mapper.readValue<PasteDto>(it) }
 
@@ -66,19 +67,19 @@ internal class PasteRestTest : DescribeSpec({
         it("first added paste's content should be returned") {
             val response = engine.handleRequest(HttpMethod.Get, "/paste/1/password").response
 
-            response.content shouldBe "message"
+            response shouldHaveContent "message"
         }
 
         it("second added paste's content should be returned") {
             val response = engine.handleRequest(HttpMethod.Get, "/paste/2/password").response
 
-            response.content shouldBe "message"
+            response shouldHaveContent "message2"
         }
 
         it("should fail when password is wrong") {
             val response = engine.handleRequest(HttpMethod.Get, "/paste/1/wrong_password").response
 
-            response.status() shouldBe HttpStatusCode.Unauthorized
+            response shouldHaveStatus HttpStatusCode.Unauthorized
         }
 
         it("should fail when content is too large") {
@@ -89,7 +90,7 @@ internal class PasteRestTest : DescribeSpec({
                 this.addHeader("Content-Type", "application/json")
             }.response
 
-            response.status() shouldBe HttpStatusCode.BadRequest
+            response shouldHaveStatus HttpStatusCode.BadRequest
         }
 
         it("should fail when adding paste with invalid duration") {
@@ -98,7 +99,7 @@ internal class PasteRestTest : DescribeSpec({
                 this.addHeader("Content-Type", "application/json")
             }.response
 
-            response.status() shouldBe HttpStatusCode.BadRequest
+            response shouldHaveStatus HttpStatusCode.BadRequest
         }
     }
 }) {
