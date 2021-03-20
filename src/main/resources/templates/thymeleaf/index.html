@@ -179,7 +179,7 @@
             deleteAfterReading: deleteAfterReading.checked
         }
 
-        const response = await putData('paste/', requestContent)
+        const response = await putData('paste', requestContent)
 
         const json = JSON.parse(response);
         const id = json.id
