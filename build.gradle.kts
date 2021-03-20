@@ -13,7 +13,11 @@ plugins {
 
 group = "pl.crejk"
 version = "1.0-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_11
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 repositories {
     mavenCentral()
@@ -48,16 +52,11 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "11"
+        jvmTarget = "1.8"
+        freeCompilerArgs = listOf("-Xinline-classes")
     }
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
-}
-
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.kotlinOptions {
-    freeCompilerArgs = listOf("-Xinline-classes")
 }
