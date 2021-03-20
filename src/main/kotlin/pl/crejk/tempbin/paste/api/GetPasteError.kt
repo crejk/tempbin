@@ -1,6 +1,6 @@
 package pl.crejk.tempbin.paste.api
 
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
 import pl.crejk.tempbin.api.HttpResponse
 
 enum class GetPasteError(
@@ -11,5 +11,5 @@ enum class GetPasteError(
     WRONG_PASSWORD("Wrong password", HttpStatusCode.Unauthorized),
     ;
 
-    constructor(message: String, httpCode: HttpStatusCode): this(HttpResponse(message, httpCode))
+    constructor(message: String, httpCode: HttpStatusCode) : this(HttpResponse(message, httpCode))
 }

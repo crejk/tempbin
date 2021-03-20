@@ -1,8 +1,11 @@
 package pl.crejk.tempbin.paste.infrastructure
 
-import io.ktor.application.*
-import io.ktor.locations.*
-import io.ktor.routing.*
+import io.ktor.application.call
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.Location
+import io.ktor.locations.get
+import io.ktor.routing.Routing
+import io.ktor.routing.post
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import pl.crejk.tempbin.api.HttpResponse

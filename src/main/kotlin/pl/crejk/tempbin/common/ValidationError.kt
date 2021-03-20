@@ -1,6 +1,6 @@
 package pl.crejk.tempbin.common
 
-import io.ktor.http.*
+import io.ktor.http.HttpStatusCode
 import pl.crejk.tempbin.api.HttpResponse
 
 data class ValidationError(

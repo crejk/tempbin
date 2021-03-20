@@ -1,7 +1,7 @@
 package pl.crejk.tempbin.common
 
-import pl.crejk.tempbin.common.id.IdGenerator
 import java.util.concurrent.atomic.AtomicInteger
+import pl.crejk.tempbin.common.id.IdGenerator
 
 internal class IncrementalIdGenerator : IdGenerator {
 

@@ -1,7 +1,14 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+buildscript {
+    dependencies {
+        classpath("org.jlleitschuh.gradle:ktlint-gradle:10.0.0")
+    }
+}
+
 plugins {
     kotlin("jvm") version "1.4.30"
+    id("org.jmailen.kotlinter").version("3.3.0")
 }
 
 group = "pl.crejk"
@@ -10,6 +17,7 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 val ktorVersion = "1.5.1"

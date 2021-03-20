@@ -1,7 +1,7 @@
 package pl.crejk.tempbin.util
 
 import java.nio.ByteBuffer
-import java.util.*
+import java.util.UUID
 
 private const val UUID_BYTE_SIZE = 16
 
@@ -10,5 +10,5 @@ internal fun UUID.toBytes(): ByteArray =
         it.putLong(this.mostSignificantBits)
         it.putLong(this.leastSignificantBits)
 
-        return it.array()
+        it.array()
     }

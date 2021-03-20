@@ -1,7 +1,7 @@
 package pl.crejk.tempbin.common
 
-import io.ktor.application.*
-import io.ktor.request.*
+import io.ktor.application.ApplicationCall
+import io.ktor.request.receive
 import io.vavr.control.Option
 import io.vavr.kotlin.none
 import io.vavr.kotlin.some

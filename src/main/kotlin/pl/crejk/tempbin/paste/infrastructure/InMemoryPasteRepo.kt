@@ -1,8 +1,8 @@
 package pl.crejk.tempbin.paste.infrastructure
 
+import java.util.concurrent.ConcurrentHashMap
 import pl.crejk.tempbin.paste.Paste
 import pl.crejk.tempbin.paste.PasteRepo
-import java.util.concurrent.ConcurrentHashMap
 
 internal class InMemoryPasteRepo : PasteRepo {
 

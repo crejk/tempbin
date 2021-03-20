@@ -1,23 +1,30 @@
 package pl.crejk.tempbin
 
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.ktor.application.*
-import io.ktor.features.*
-import io.ktor.http.*
-import io.ktor.jackson.*
-import io.ktor.locations.*
-import io.ktor.response.*
-import io.ktor.routing.*
-import io.ktor.server.netty.*
-import io.ktor.thymeleaf.*
-import io.ktor.util.*
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.features.Compression
+import io.ktor.features.ContentNegotiation
+import io.ktor.features.StatusPages
+import io.ktor.http.HttpStatusCode
+import io.ktor.jackson.jackson
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.Locations
+import io.ktor.response.respond
+import io.ktor.routing.get
+import io.ktor.routing.routing
+import io.ktor.server.netty.EngineMain
+import io.ktor.thymeleaf.Thymeleaf
+import io.ktor.thymeleaf.ThymeleafContent
+import io.ktor.util.KtorExperimentalAPI
 import io.vavr.jackson.datatype.VavrModule
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
 import pl.crejk.tempbin.paste.PasteRepo
-import pl.crejk.tempbin.paste.infrastructure.PasteRest
 import pl.crejk.tempbin.paste.PasteService
 import pl.crejk.tempbin.paste.infrastructure.FlatPasteRepo
 import pl.crejk.tempbin.paste.infrastructure.InMemoryPasteRepo
+import pl.crejk.tempbin.paste.infrastructure.PasteRest
 
 fun main(args: Array<String>) =
     EngineMain.main(args)
@@ -27,8 +34,8 @@ fun main(args: Array<String>) =
 fun Application.module() {
     install(ContentNegotiation) {
         jackson {
-            this.registerKotlinModule()
-            this.registerModule(VavrModule())
+            registerKotlinModule()
+            registerModule(VavrModule())
         }
     }
 
@@ -60,11 +67,13 @@ fun Application.module() {
     install(Locations)
 
     install(Thymeleaf) {
-        setTemplateResolver(ClassLoaderTemplateResolver().apply {
-            prefix = "templates/thymeleaf/"
-            suffix = ".html"
-            characterEncoding = "utf-8"
-        })
+        setTemplateResolver(
+            ClassLoaderTemplateResolver().apply {
+                prefix = "templates/thymeleaf/"
+                suffix = ".html"
+                characterEncoding = "utf-8"
+            }
+        )
     }
 
     routing(PasteRest(pasteService).api())

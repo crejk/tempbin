@@ -2,12 +2,15 @@ package pl.crejk.tempbin.paste
 
 import io.vavr.control.Either
 import io.vavr.kotlin.right
+import java.time.LocalDateTime
+import pl.crejk.tempbin.common.ValidationError
 import pl.crejk.tempbin.common.id.IdGenerator
 import pl.crejk.tempbin.common.password.PasswordGenerator
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
-import pl.crejk.tempbin.common.ValidationError
 import pl.crejk.tempbin.util.SecurityUtil
-import java.time.LocalDateTime
+
+typealias Validated<T> = Either<ValidationError, T>
+typealias ValidatedRequest = Validated<CreatePasteRequest>
 
 internal data class PasteWithPassword(
     val paste: Paste,
@@ -20,7 +23,7 @@ internal class PasteCreator(
     private val maxContentLength: Int
 ) {
 
-    fun create(request: CreatePasteRequest): Either<ValidationError, PasteWithPassword> =
+    fun create(request: CreatePasteRequest): Validated<PasteWithPassword> =
         this.validateRequest(request)
             .map {
                 val password = this.passwordGenerator.generate()
@@ -39,7 +42,7 @@ internal class PasteCreator(
                 )
             }
 
-    private fun validateRequest(request: CreatePasteRequest): Either<ValidationError, CreatePasteRequest> =
+    private fun validateRequest(request: CreatePasteRequest): ValidatedRequest =
         right<ValidationError, CreatePasteRequest>(request)
             .filterOrElse({ it.content.isNotEmpty() }, { ValidationError("Content is empty.") })
             .filterOrElse({ it.content.length < maxContentLength }, { ValidationError("Content too large.") })

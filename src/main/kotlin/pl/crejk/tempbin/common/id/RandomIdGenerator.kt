@@ -1,6 +1,6 @@
 package pl.crejk.tempbin.common.id
 
-import java.util.*
+import java.util.UUID
 
 class RandomIdGenerator : IdGenerator {
 

@@ -5,13 +5,17 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.application.*
-import io.ktor.features.*
-import io.ktor.http.*
-import io.ktor.jackson.*
-import io.ktor.locations.*
-import io.ktor.routing.*
-import io.ktor.server.testing.*
+import io.ktor.application.install
+import io.ktor.features.ContentNegotiation
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.jackson.jackson
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.Locations
+import io.ktor.routing.routing
+import io.ktor.server.testing.TestApplicationEngine
+import io.ktor.server.testing.handleRequest
+import io.ktor.server.testing.setBody
 import pl.crejk.tempbin.common.testPasteService
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
 import pl.crejk.tempbin.paste.api.PasteDto
@@ -43,8 +47,8 @@ internal class PasteRestTest : DescribeSpec({
 
         it("should add paste") {
             val pasteDto = engine.handleRequest(HttpMethod.Post, "paste") {
-                this.setBody(mapper.writeValueAsString(CreatePasteRequest("message")))
-                this.addHeader("Content-Type", "application/json")
+                setBody(mapper.writeValueAsString(CreatePasteRequest("message")))
+                addHeader("Content-Type", "application/json")
             }.response.content!!.let { mapper.readValue<PasteDto>(it) }
 
             pasteDto.id shouldBe "1"

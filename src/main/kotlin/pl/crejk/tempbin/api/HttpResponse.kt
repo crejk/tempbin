@@ -1,8 +1,8 @@
 package pl.crejk.tempbin.api
 
-import io.ktor.application.*
-import io.ktor.http.*
-import io.ktor.response.*
+import io.ktor.application.ApplicationCall
+import io.ktor.http.HttpStatusCode
+import io.ktor.response.respond
 
 data class HttpResponse(
     val message: Any,
@@ -11,4 +11,4 @@ data class HttpResponse(
 
 @Suppress("NOTHING_TO_INLINE")
 internal suspend inline fun ApplicationCall.respond(response: HttpResponse) =
-    this.respond(response.httpCode, response.message)
+    respond(response.httpCode, response.message)

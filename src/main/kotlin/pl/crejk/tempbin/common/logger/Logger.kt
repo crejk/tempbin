@@ -1,14 +1,14 @@
 package pl.crejk.tempbin.common.logger
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.companionObject
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 fun <T : Any> logger() = LoggerDelegate<T>()
 
-class LoggerDelegate<T : Any>: ReadOnlyProperty<T, Logger> {
+class LoggerDelegate<T : Any> : ReadOnlyProperty<T, Logger> {
 
     private lateinit var logger: Logger
 
