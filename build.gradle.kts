@@ -37,8 +37,7 @@ dependencies {
     implementation("io.ktor:ktor-locations:$ktorVersion")
     implementation("io.ktor:ktor-thymeleaf:$ktorVersion")
 
-    implementation("io.vavr:vavr-kotlin:$vavrVersion")
-    implementation("io.vavr:vavr-jackson:$vavrVersion")
+    implementation("io.arrow-kt:arrow-core-data:0.12.0")
 
     implementation("org.springframework.security:spring-security-crypto:5.3.4.RELEASE")
     implementation("com.github.ben-manes.caffeine:caffeine:2.8.5")
@@ -47,6 +46,8 @@ dependencies {
 
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-ktor:$kotestVersion")
+    testImplementation("io.kotest:kotest-assertions-arrow-jvm:$kotestVersion")
+
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 }
 

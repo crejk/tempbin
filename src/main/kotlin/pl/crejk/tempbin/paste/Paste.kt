@@ -1,18 +1,19 @@
 package pl.crejk.tempbin.paste
 
-import pl.crejk.tempbin.util.SecurityUtil
-import java.time.LocalDateTime
+import pl.crejk.tempbin.TimeProvider
+import pl.crejk.tempbin.common.SecurityUtil
+import java.time.Instant
 
 data class Paste(
     val id: String,
     val content: EncryptedContent,
-    val creationTime: LocalDateTime,
-    val expirationTime: LocalDateTime,
+    val creationTime: Instant,
+    val expirationTime: Instant,
     val deleteAfterReading: Boolean = false
 ) {
 
-    fun isExpired(): Boolean =
-        this.expirationTime.isBefore(LocalDateTime.now())
+    suspend fun isExpired(timeProvider: TimeProvider): Boolean =
+        this.expirationTime.isBefore(timeProvider())
 }
 
 data class EncryptedContent(val value: String, val salt: String) {

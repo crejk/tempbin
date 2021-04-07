@@ -1,37 +1,55 @@
 package pl.crejk.tempbin.paste
 
+import arrow.core.Either
+import arrow.core.Option
+import arrow.core.flatMap
+import arrow.core.none
+import arrow.core.orElse
+import arrow.core.some
+import arrow.core.toOption
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import io.vavr.control.Either
-import io.vavr.control.Try
-import io.vavr.kotlin.option
-import pl.crejk.tempbin.common.ValidationError
-import pl.crejk.tempbin.common.id.IdGenerator
-import pl.crejk.tempbin.common.id.RandomIdGenerator
-import pl.crejk.tempbin.common.password.PasswordGenerator
-import pl.crejk.tempbin.common.password.RandomPasswordGenerator
+import pl.crejk.tempbin.TimeProvider
+import pl.crejk.tempbin.common.SecurityUtil
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
-import pl.crejk.tempbin.paste.api.GetPasteError
 import pl.crejk.tempbin.paste.api.PasteDto
-import pl.crejk.tempbin.util.SecurityUtil
+import pl.crejk.tempbin.paste.api.PasteError
 import java.util.concurrent.TimeUnit
 
 class PasteService internal constructor(
     private val repo: PasteRepo,
-    idGenerator: IdGenerator = RandomIdGenerator(),
-    passwordGenerator: PasswordGenerator = RandomPasswordGenerator(),
-    maxContentLength: Int,
+    private val creator: PasteCreator,
+    private val timeProvider: TimeProvider,
+    private val cache: Cache<String, Paste> = Caffeine.newBuilder()
+        .expireAfterAccess(5, TimeUnit.MINUTES)
+        .build()
 ) {
 
-    private val creator = PasteCreator(idGenerator, passwordGenerator, maxContentLength)
-    private val cache = Caffeine.newBuilder()
-        .expireAfterAccess(5, TimeUnit.MINUTES)
-        .build<String, Paste>()
-
-    fun createPaste(request: CreatePasteRequest): Either<ValidationError, PasteDto> =
+    suspend fun createPaste(request: CreatePasteRequest): Either<PasteError, PasteDto> =
         creator.create(request)
             .map { it.copy(paste = this.savePaste(it.paste)) }
             .map { PasteDto(it.paste.id, it.password) }
+
+    suspend fun getPaste(id: String): Either<PasteError, Paste> =
+        this.cache.computeIfAbsent(id, { this.repo.findPaste(id) })
+            .toOption()
+            .flatMap { deletePasteIfNecessary(it) }
+            .toEither { PasteError.NotFound }
+
+    suspend fun getPasteContent(id: String, password: String): Either<PasteError, String> =
+        getPaste(id).flatMap { decrypt(password, it.content) }
+
+    fun removePaste(id: String): Option<Paste> {
+        this.repo.removePaste(id)
+        this.cache.invalidate(id)
+        return none()
+    }
+
+    private suspend fun deletePasteIfNecessary(paste: Paste): Option<Paste> = when {
+        paste.isExpired(timeProvider) -> removePaste(paste.id)
+        paste.deleteAfterReading -> removePaste(paste.id).orElse { paste.some() }
+        else -> paste.some()
+    }
 
     private fun savePaste(paste: Paste): Paste {
         repo.savePaste(paste)
@@ -39,30 +57,10 @@ class PasteService internal constructor(
         return paste
     }
 
-    fun getPaste(id: String): Either<GetPasteError, Paste> =
-        this.cache.computeIfAbsent(id, { this.repo.findPaste(id) })
-            .option()
-            .toEither(GetPasteError.NOT_FOUND)
-            .peek { deletePasteIfNecessary(it) }
-            .filterOrElse({ !it.isExpired() }, { GetPasteError.NOT_FOUND })
-
-    private fun deletePasteIfNecessary(paste: Paste) {
-        if (paste.deleteAfterReading || paste.isExpired()) {
-            this.removePaste(paste.id)
-        }
-    }
-
-    fun removePaste(id: String) {
-        this.repo.removePaste(id)
-        this.cache.invalidate(id)
-    }
-
-    fun getPasteContent(id: String, password: String): Either<GetPasteError, String> =
-        getPaste(id).flatMap { decrypt(password, it.content).toEither(GetPasteError.WRONG_PASSWORD) }
-
-    private fun decrypt(password: String, encryptedContent: EncryptedContent) = Try.of {
-        SecurityUtil.prepareTextEncryptor(password, encryptedContent.salt).decrypt(encryptedContent.value)
-    }
+    private fun decrypt(password: String, encryptedContent: EncryptedContent): Either<PasteError, String> =
+        Either.catch {
+            SecurityUtil.prepareTextEncryptor(password, encryptedContent.salt).decrypt(encryptedContent.value)
+        }.mapLeft { PasteError.Unauthorized }
 }
 
 private inline fun <K : Any, V> Cache<K, V>.computeIfAbsent(key: K, mappingFunction: (K) -> V?): V? =
