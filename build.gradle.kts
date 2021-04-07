@@ -24,9 +24,8 @@ repositories {
     jcenter()
 }
 
-val ktorVersion = "1.5.2"
+val ktorVersion = "1.5.3"
 val kotestVersion = "4.4.3"
-val vavrVersion = "0.10.2"
 
 dependencies {
     implementation(kotlin("stdlib"))
