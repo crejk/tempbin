@@ -18,14 +18,14 @@ import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
-import java.time.Clock
+import pl.crejk.tempbin.TimeProvider
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
 import pl.crejk.tempbin.paste.api.PasteDto
 import pl.crejk.tempbin.paste.infrastructure.PasteRest
+import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
-import pl.crejk.tempbin.TimeProvider
 
 @KtorExperimentalLocationsAPI
 internal class PasteRestTest : DescribeSpec({
