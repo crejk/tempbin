@@ -1,9 +1,9 @@
 package pl.crejk.tempbin.paste.api
 
 import io.ktor.http.HttpStatusCode
+import pl.crejk.tempbin.api.HttpResponse
 import java.util.Locale
 import kotlin.reflect.KClass
-import pl.crejk.tempbin.api.HttpResponse
 
 sealed class PasteError(
     private val code: HttpStatusCode,
@@ -31,5 +31,3 @@ private fun KClass<*>.nameAsDesc() =
 
 private fun String.splitByCapitalizeLetters(): List<String> =
     this.split(Regex("(?<=.)(?=\\p{Lu})"))
-
-
