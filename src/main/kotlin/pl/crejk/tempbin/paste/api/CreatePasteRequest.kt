@@ -20,5 +20,6 @@ enum class Expiration(
     MONTH(Duration.ofDays(30)),
     ;
 
-    val minutes = this.duration.toMinutes()
+    val toMillis get() =
+        this.duration.toMillis()
 }

@@ -8,16 +8,8 @@ internal class InMemoryPasteRepo : PasteRepo {
 
     private val _pastes = ConcurrentHashMap<String, Paste>()
 
-    override fun findPaste(id: String): Paste? {
-        val paste = this._pastes[id]
-
-        if (paste?.isExpired() == true) {
-            this._pastes.remove(id)
-            return null
-        }
-
-        return paste
-    }
+    override fun findPaste(id: String): Paste? =
+        this._pastes[id]
 
     override fun savePaste(paste: Paste): Paste {
         this._pastes[paste.id] = paste

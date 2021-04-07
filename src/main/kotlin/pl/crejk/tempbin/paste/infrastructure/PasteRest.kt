@@ -1,5 +1,6 @@
 package pl.crejk.tempbin.paste.infrastructure
 
+import arrow.core.flatMap
 import io.ktor.application.call
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.Location
@@ -8,10 +9,10 @@ import io.ktor.routing.Routing
 import io.ktor.routing.post
 import pl.crejk.tempbin.api.HttpResponse
 import pl.crejk.tempbin.api.respond
-import pl.crejk.tempbin.common.ValidationError
-import pl.crejk.tempbin.common.receiveOption
+import pl.crejk.tempbin.common.receive
 import pl.crejk.tempbin.paste.PasteService
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
+import pl.crejk.tempbin.paste.api.PasteError
 
 @KtorExperimentalLocationsAPI
 @Location("/paste/{id}/{password}")
@@ -29,7 +30,7 @@ internal class PasteRest(
         get<GetPasteRawRequest> { request ->
             val response = service.getPasteContent(request.id, request.password)
                 .fold(
-                    { error -> error.response },
+                    { error -> error.toHttpResponse() },
                     { HttpResponse(it) }
                 )
 
@@ -37,8 +38,8 @@ internal class PasteRest(
         }
 
         post("paste") {
-            val response = call.receiveOption<CreatePasteRequest>()
-                .toEither { ValidationError("Bad request") }
+            val response = call.receive<CreatePasteRequest>()
+                .mapLeft { PasteError.BadRequest.CannotTransformContent }
                 .flatMap { service.createPaste(it) }
                 .fold(
                     { error -> error.toHttpResponse() },

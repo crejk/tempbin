@@ -17,23 +17,27 @@ import io.ktor.routing.routing
 import io.ktor.server.netty.EngineMain
 import io.ktor.thymeleaf.Thymeleaf
 import io.ktor.thymeleaf.ThymeleafContent
-import io.vavr.jackson.datatype.VavrModule
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver
+import pl.crejk.tempbin.common.id.RandomIdGenerator
+import pl.crejk.tempbin.common.password.RandomPasswordGenerator
+import pl.crejk.tempbin.paste.PasteCreator
 import pl.crejk.tempbin.paste.PasteRepo
 import pl.crejk.tempbin.paste.PasteService
 import pl.crejk.tempbin.paste.infrastructure.FlatPasteRepo
 import pl.crejk.tempbin.paste.infrastructure.InMemoryPasteRepo
 import pl.crejk.tempbin.paste.infrastructure.PasteRest
+import java.time.Instant
 
 fun main(args: Array<String>) =
     EngineMain.main(args)
+
+typealias TimeProvider = suspend () -> Instant
 
 @KtorExperimentalLocationsAPI
 fun Application.module() {
     install(ContentNegotiation) {
         jackson {
             registerKotlinModule()
-            registerModule(VavrModule())
         }
     }
 
@@ -49,7 +53,11 @@ fun Application.module() {
     else
         FlatPasteRepo()
 
-    val pasteService = PasteService(repo, maxContentLength = maxContentLength)
+    val timeProvider: TimeProvider = suspend { Instant.now() }
+
+    val pasteCreator = PasteCreator(RandomIdGenerator(), RandomPasswordGenerator(), maxContentLength, timeProvider)
+
+    val pasteService = PasteService(repo, pasteCreator, timeProvider)
 
     install(StatusPages) {
         exception<Throwable> { cause ->

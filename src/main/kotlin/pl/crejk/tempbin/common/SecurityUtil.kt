@@ -1,4 +1,4 @@
-package pl.crejk.tempbin.util
+package pl.crejk.tempbin.common
 
 import org.apache.commons.codec.digest.DigestUtils
 import org.springframework.security.crypto.encrypt.Encryptors

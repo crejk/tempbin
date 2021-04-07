@@ -1,6 +1,6 @@
 package pl.crejk.tempbin.common.password
 
-import pl.crejk.tempbin.util.SecurityUtil
+import pl.crejk.tempbin.common.SecurityUtil
 
 class RandomPasswordGenerator : PasswordGenerator {
 

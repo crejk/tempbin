@@ -1,4 +1,4 @@
-package pl.crejk.tempbin.util
+package pl.crejk.tempbin.common
 
 import java.nio.ByteBuffer
 import java.util.UUID

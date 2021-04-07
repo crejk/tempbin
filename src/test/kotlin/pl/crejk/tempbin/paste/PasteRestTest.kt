@@ -18,15 +18,19 @@ import io.ktor.routing.routing
 import io.ktor.server.testing.TestApplicationEngine
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
+import java.time.Clock
 import pl.crejk.tempbin.paste.api.CreatePasteRequest
 import pl.crejk.tempbin.paste.api.PasteDto
 import pl.crejk.tempbin.paste.infrastructure.PasteRest
+import java.time.Instant
+import java.time.ZoneId
+import java.time.ZoneOffset
+import pl.crejk.tempbin.TimeProvider
 
 @KtorExperimentalLocationsAPI
 internal class PasteRestTest : DescribeSpec({
     describe("rest server") {
         val mapper = jacksonObjectMapper()
-        val maxContentLength = (1 * 1024) / 2
         val engine = TestApplicationEngine()
 
         engine.start()
@@ -38,7 +42,7 @@ internal class PasteRestTest : DescribeSpec({
         }
 
         engine.application.install(Locations)
-        engine.application.routing(PasteRest(testPasteService(maxContentLength)).api())
+        engine.application.routing(PasteRest(testPasteService(maxContentLength, timeProvider)).api())
 
         it("paste should not exist") {
             val response = engine.handleRequest(HttpMethod.Get, "/paste/1/pass").response
@@ -105,6 +109,12 @@ internal class PasteRestTest : DescribeSpec({
 }) {
 
     companion object {
+
+        private const val maxContentLength = (1 * 1024) / 2
+
+        private val timeProvider: TimeProvider = suspend {
+            Clock.fixed(Instant.parse("2014-12-22T10:15:30Z"), ZoneId.of(ZoneOffset.UTC.id)).instant()
+        }
 
         private fun generateString(sizeInKb: Int): String {
             val size = sizeInKb * 1024
